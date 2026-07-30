@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
@@ -23,17 +24,22 @@ export function Header() {
   }
 
   return (
-    <header className="bg-[#1a1a2e] text-white shadow-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-3 md:px-4">
-        <div className="flex items-center justify-between h-14 md:h-16">
-          <Link href="/" className="flex items-center gap-2 min-w-0">
-
-            <span className="text-lg md:text-xl font-black tracking-tight">
-              <span className="text-white">SATTA</span>
-              <span className="text-amber-400">ONLINE</span>
-              <span className="text-white">RESULT</span>
-
-            </span>
+    <header className="bg-black text-white shadow-lg border-b-2 border-black">
+      <div className="max-w-7xl mx-auto px-0 md:px-4">
+        <div className="flex flex-col md:h-20 md:flex-row md:items-center md:justify-between">
+          <Link
+            href="/"
+            className="block w-full md:w-auto"
+            aria-label="Satta Online Result home"
+          >
+            <Image
+              src="/logo-header.png"
+              alt="Satta Online Result"
+              width={1942}
+              height={809}
+              priority
+              className="h-28 w-full object-cover md:h-20 md:w-[430px]"
+            />
           </Link>
 
           {/* Desktop navigation */}
@@ -46,8 +52,8 @@ export function Header() {
                   href={link.href}
                   className={`px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-xs md:text-sm font-semibold transition-all ${
                     active
-                      ? "bg-amber-500 text-white shadow-md"
-                      : "text-gray-400 hover:bg-white/10 hover:text-white"
+                      ? "bg-yellow-200 text-black shadow-md"
+                      : "text-white hover:bg-white/10"
                   }`}
                 >
                   {link.label}
@@ -56,10 +62,14 @@ export function Header() {
             })}
           </nav>
 
+        </div>
+
+        <div className="flex h-11 items-center justify-between border-t border-yellow-200/40 bg-black px-3 text-white md:hidden">
+          <span className="text-xs font-black uppercase tracking-[0.2em]">Menu</span>
           <button
             type="button"
             onClick={() => setIsMenuOpen((open) => !open)}
-            className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-lg text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-amber-400"
+            className="inline-flex h-9 w-11 items-center justify-center rounded-lg border border-yellow-200/60 bg-black text-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-200"
             aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
             aria-expanded={isMenuOpen}
             aria-controls="mobile-navigation"
@@ -79,7 +89,7 @@ export function Header() {
         {isMenuOpen && (
           <nav
             id="mobile-navigation"
-            className="md:hidden border-t border-white/10 py-2"
+            className="mx-3 border-t border-white/20 py-2 md:hidden"
             aria-label="Mobile navigation"
           >
             {NAV_LINKS.map((link) => {
@@ -91,8 +101,8 @@ export function Header() {
                   onClick={() => setIsMenuOpen(false)}
                   className={`block rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors ${
                     active
-                      ? "bg-amber-500 text-white"
-                      : "text-gray-200 hover:bg-white/10 hover:text-white"
+                      ? "bg-yellow-200 text-black"
+                      : "text-white hover:bg-white/10"
                   }`}
                 >
                   {link.label}
@@ -104,7 +114,7 @@ export function Header() {
       </div>
 
       {/* Yellow marquee bar */}
-      <div className="bg-amber-500 text-white py-1 overflow-hidden w-full">
+      <div className="bg-black text-yellow-100 py-1 overflow-hidden w-full">
         <div className="animate-marquee whitespace-nowrap text-[10px] md:text-xs font-bold">
           {lang === "hi"
             ? "SattaOnlineResult.com में आपका स्वागत है — सुपरफास्ट लाइव A7 सट्टा रिजल्ट • गली, देसावर, गाज़ियाबाद, फरीदाबाद, श्री गणेश, दिल्ली बाजार • 100+ गेम्स • फ्री मंथली चार्ट रिकॉर्ड 2015-2026 • हर मिनट अपडेट"

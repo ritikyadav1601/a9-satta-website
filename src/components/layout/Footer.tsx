@@ -2,12 +2,12 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="bg-[#1a1a2e] text-gray-400 mt-auto">
+    <footer className="bg-neutral-950 text-gray-400 mt-auto border-t-4 border-yellow-200">
       <div className="max-w-7xl mx-auto px-3 md:px-4 py-8 md:py-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           <div>
             <h3 className="text-white text-lg font-black mb-3">
-              A7<span className="text-amber-400">SATTA</span>
+              A7<span className="text-yellow-200">SATTA</span>
             </h3>
             <p className="text-sm leading-relaxed">
               SattaOnlineResult.com is India&apos;s fastest platform for live A7 Satta results.

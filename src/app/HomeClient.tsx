@@ -40,6 +40,65 @@ interface ChartRow {
   dlbz: string;
 }
 
+interface ResultSpotlight {
+  name: string;
+  time: string;
+  today: string;
+  updatedAt?: number;
+}
+
+const SPOTLIGHT_SCHEDULE: ResultSpotlight[] = [
+  { name: "SADAR BAZAR", time: "01:39 PM", today: "XX" },
+  { name: "GWALIOR", time: "02:39 PM", today: "XX" },
+  { name: "DELHI BAZAR", time: "03:00 PM", today: "XX" },
+  { name: "DELHI MATKA", time: "03:39 PM", today: "XX" },
+  { name: "SHRI GANESH", time: "04:30 PM", today: "XX" },
+  { name: "AGRA", time: "05:29 PM", today: "XX" },
+  { name: "FARIDABAD", time: "06:00 PM", today: "XX" },
+  { name: "ALWAR", time: "07:34 PM", today: "XX" },
+  { name: "GAZIABAD", time: "09:25 PM", today: "XX" },
+  { name: "DWARKA", time: "10:34 PM", today: "XX" },
+  { name: "GALI", time: "11:25 PM", today: "XX" },
+  { name: "DESAWAR", time: "05:00 AM", today: "XX" },
+];
+const SPOTLIGHT_GAME_NAMES = new Set([
+  "sadar bazar",
+  "gwalior",
+  "delhi bazar",
+  "delhi matka",
+  "shri ganesh",
+  "agra",
+  "faridabad",
+  "fridabad",
+  "frbd",
+  "alwar",
+  "gaziabad",
+  "ghaziabad",
+  "gzbd",
+  "dwarka",
+  "gali",
+  "desawar",
+  "desawer",
+  "dswr",
+]);
+
+function isDeclaredResult(value: string | undefined) {
+  return Boolean(value && value !== "XX" && value !== "--");
+}
+
+function resultKey(game: GameResult | SK24Game) {
+  return game.name.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function isSpotlightGame(game: GameResult | SK24Game) {
+  return SPOTLIGHT_GAME_NAMES.has(resultKey(game));
+}
+
+function allHomepageGames(data: HomeData): (GameResult | SK24Game)[] {
+  return [...data.liveResults, ...data.nextResults, ...data.restResults, ...data.sk24Games]
+    .filter(isSpotlightGame);
+}
+
 // ─── Scroll Animation ───
 
 function useScrollAnimation(deps: unknown[] = []) {
@@ -89,6 +148,8 @@ function CardSkeleton() {
 export default function HomeClient({ initialData }: { initialData: HomeData }) {
   // Server data makes the first paint fast; this state is refreshed every 10s.
   const [homeData, setHomeData] = useState<HomeData>(initialData);
+  const dataRef = useRef<HomeData>(initialData);
+  const [resultsUpdatedAt, setResultsUpdatedAt] = useState(() => Date.now());
   const loading = false;
   const {
     liveResults,
@@ -105,6 +166,7 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
 
   useEffect(() => {
     setHomeData(initialData);
+    dataRef.current = initialData;
   }, [initialData]);
 
   useEffect(() => {
@@ -116,7 +178,23 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
       inFlight = true;
       try {
         const response = await fetch("/api/home-data", { cache: "no-store" });
-        if (response.ok) setHomeData(await response.json());
+        if (response.ok) {
+          const nextData = (await response.json()) as HomeData;
+          const previousResults = new Map(
+            allHomepageGames(dataRef.current).map((game) => [resultKey(game), game.today])
+          );
+          const changedResult = allHomepageGames(nextData).find((game) => {
+            const previous = previousResults.get(resultKey(game));
+            return isDeclaredResult(game.today) && previous !== undefined && previous !== game.today;
+          });
+
+          if (changedResult) {
+            setResultsUpdatedAt(Date.now());
+          }
+
+          dataRef.current = nextData;
+          setHomeData(nextData);
+        }
       } catch {
         // Keep the most recently displayed result if a refresh request fails.
       } finally {
@@ -131,7 +209,7 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
   const containerRef = useScrollAnimation([loading]);
   const { lang } = useLanguage();
 
-  const updatedAt = format(new Date(), "dd MMMM yyyy, hh:mm a") + " IST";
+  const updatedAt = format(new Date(resultsUpdatedAt), "dd MMMM yyyy, hh:mm a") + " IST";
 
   // Games to hide from all sections
   const hiddenGames = new Set([
@@ -233,17 +311,38 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
       return allNames.some(n => n === gn);
     });
     if (existing) {
-      const time = existing.time || "";
+      const scheduledTime =
+        SPOTLIGHT_SCHEDULE.find((game) => resultKey(game as SK24Game) === name)?.time || "";
+      const time = existing.time || scheduledTime;
       return {
         name: name.toUpperCase(),
         time,
         yesterday: existing.yesterday,
-        // Only show today's result once the game's scheduled time has passed.
-        today: gateTodayByTime(existing.today, time),
+        // The live boxes follow actual published values, never the wall clock.
+        today: existing.today,
       };
     }
-    return { name: name.toUpperCase(), time: "", yesterday: "XX", today: "XX" };
+    const scheduledTime =
+      SPOTLIGHT_SCHEDULE.find((game) => resultKey(game as SK24Game) === name)?.time || "";
+    return { name: name.toUpperCase(), time: scheduledTime, yesterday: "XX", today: "XX" };
   });
+
+  // Follow the current declaration run and stop at its first pending value.
+  // Desawar may already contain its early-morning result, so a declared value
+  // after an earlier XX must not jump the cards to the next day's Sadar.
+  const firstPendingIndex = section3Games.findIndex((game) => !isDeclaredResult(game.today));
+  const upcomingResult =
+    firstPendingIndex >= 0
+      ? section3Games[firstPendingIndex]
+      : { ...section3Games[0], today: "XX" };
+  const recentResult =
+    firstPendingIndex > 0
+      ? section3Games[firstPendingIndex - 1]
+      : firstPendingIndex === 0 && isDeclaredResult(section3Games.at(-1)?.today)
+        ? section3Games.at(-1) || null
+        : firstPendingIndex === -1
+          ? section3Games.at(-1) || null
+          : null;
 
   // Filter remaining games: exclude top 9 games and 3rd section games from other sections
   const allFixedNames = new Set<string>();
@@ -265,34 +364,50 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
   const filteredRest = restResults.filter(g => !isInFixedList(g.name) && !isHidden(g.name));
 
   return (
-    <div ref={containerRef} className="bg-white">
+    <div ref={containerRef} className="bg-[#fffdf2]">
       {/* Hero */}
-      <div className="bg-[#1a1a2e] text-white text-center py-6 md:py-10 px-3 md:px-4">
-        <div className="inline-block mb-3 px-4 py-1.5 rounded-full bg-white/10 border border-white/20">
-          <span className="text-gray-200 text-xs md:text-sm font-bold tracking-wider uppercase">
+      <div className="bg-gradient-to-br from-yellow-50 via-yellow-100 to-yellow-200 text-black text-center py-7 md:py-12 px-3 md:px-4 border-b-4 border-black">
+        <div className="inline-block mb-3 px-4 py-1.5 rounded-full bg-black border border-black shadow-md">
+          <span className="text-yellow-100 text-xs md:text-sm font-bold tracking-wider uppercase">
             {t("लाइव रिजल्ट डैशबोर्ड", "Live Results Dashboard", lang)}
           </span>
         </div>
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight mb-2">
           Satta Online Result {format(new Date(), "yyyy")}
           <br className="md:hidden" />
-          <span className="text-amber-400"> {t("लाइव रिजल्ट", "Live Results", lang)}</span>
+          <span className="inline-block rounded-lg bg-black px-2 text-yellow-100"> {t("लाइव रिजल्ट", "Live Results", lang)}</span>
         </h1>
-        <p className="text-gray-400 text-sm md:text-base max-w-2xl mx-auto">
+        <p className="text-neutral-800 font-medium text-sm md:text-base max-w-2xl mx-auto">
           {t(
             "सबसे तेज़ A7 सट्टा रिजल्ट अपडेट। गली, देसावर, गाज़ियाबाद, फरीदाबाद और 100+ गेम्स।",
             "Fastest A7 Satta result updates. Gali, Desawar, Ghaziabad, Faridabad & 100+ games.",
             lang
           )}
         </p>
-        <div className="mt-4 inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-xs text-gray-400">
+        <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto text-left">
+          <ResultSpotlightCard
+            label={t("आने वाला रिजल्ट", "Upcoming Result", lang)}
+            game={upcomingResult}
+            emptyText={t("अगला गेम जल्द दिखेगा", "Next game will appear soon", lang)}
+            tone="upcoming"
+            lang={lang}
+          />
+          <ResultSpotlightCard
+            label={t("हाल ही में अपडेट हुआ", "Recently Updated", lang)}
+            game={recentResult}
+            emptyText={t("आज के पहले रिजल्ट का इंतज़ार", "Waiting for today's first result", lang)}
+            tone="recent"
+            lang={lang}
+          />
+        </div>
+        <div className="mt-4 inline-flex items-center gap-2 bg-white/70 border border-black/20 rounded-full px-4 py-2 text-xs font-bold text-neutral-800 shadow-sm">
           <span className="w-2 h-2 bg-green-400 rounded-full animate-live-pulse" />
           {t("अंतिम अपडेट", "Last Updated", lang)}: {updatedAt}
         </div>
       </div>
 
       {/* Disclaimer */}
-      <div className="bg-gray-50 border-b border-gray-200 py-1.5 px-2 md:px-4">
+      <div className="bg-yellow-100 border-b border-yellow-300 py-1.5 px-2 md:px-4">
         <p className="text-center text-[11px] md:text-xs text-gray-500 max-w-4xl mx-auto">
           <span className="font-bold text-red-500">{t("अस्वीकरण", "DISCLAIMER", lang)}:</span>{" "}
           {t(
@@ -300,7 +415,7 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
             "SattaOnlineResult.com is an independent informational website. We do not promote gambling or betting.",
             lang
           )}{" "}
-          <Link href="/disclaimer" className="text-blue-600 hover:underline font-medium">
+          <Link href="/disclaimer" className="text-yellow-700 hover:underline font-bold">
             {t("पूरा अस्वीकरण पढ़ें", "Read Full Disclaimer", lang)}
           </Link>
         </p>
@@ -320,8 +435,8 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
               title={t("अन्य गेम रिजल्ट", "Other Game Results", lang)}
               subtitle={t("सदर बाज़ार, ग्वालियर, दिल्ली बाज़ार और अन्य", "Sadar Bazar, Gwalior, Delhi Bazar & more", lang)}
               icon={<FiBarChart2 size={18} />}
-              headerBg="bg-purple-600"
-              accentColor="text-purple-600"
+              headerBg="bg-yellow-400"
+              accentColor="text-yellow-700"
               games={section3Games}
               isLive
               lang={lang}
@@ -343,8 +458,8 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
               title={t("आज के A7 सट्टा रिजल्ट", "Today A7 Satta Results", lang)}
               subtitle={t("इंटरनेट पर सबसे तेज़ A7 सट्टा रिजल्ट", "Fastest A7 Satta result on internet", lang)}
               icon={<FiZap size={18} />}
-              headerBg="bg-blue-600"
-              accentColor="text-blue-600"
+              headerBg="bg-yellow-400"
+              accentColor="text-yellow-700"
               games={topGames}
               isLive
               lang={lang}
@@ -400,7 +515,7 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
         )}
 
         {/* Welcome */}
-        <div className="sa opacity-0 translate-y-8 bg-gray-50 rounded-2xl border border-gray-200 p-5 md:p-8 space-y-3 text-sm text-gray-600 leading-relaxed">
+        <div className="sa opacity-0 translate-y-8 bg-yellow-50 rounded-2xl border-2 border-yellow-300 p-5 md:p-8 space-y-3 text-sm text-gray-700 leading-relaxed">
           <p>
             {t(
               <>
@@ -422,11 +537,11 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
         </div>
 
         {/* CTA */}
-        <div className="sa opacity-0 translate-y-8 bg-[#1a1a2e] rounded-2xl p-5 md:p-6 text-center">
-          <p className="text-lg md:text-xl font-black text-white">
+        <div className="sa opacity-0 translate-y-8 bg-yellow-200 border-2 border-black rounded-2xl p-5 md:p-6 text-center shadow-[5px_5px_0_#171717]">
+          <p className="text-lg md:text-xl font-black text-black">
             {t("अपना गेम यहाँ एडवरटाइज़ करें", "ADVERTISE YOUR GAME HERE", lang)}
           </p>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-sm text-neutral-800 mt-1">
             {t("SattaOnlineResult.com पर अपने गेम को फीचर करने के लिए संपर्क करें", "Contact us to feature your game on SattaOnlineResult.com", lang)}
           </p>
         </div>
@@ -439,39 +554,47 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
 }
 
 
-// Parse a game time like "01:39 PM" / "9:20 PM" into minutes since midnight.
-// Returns null if the string is empty or not a recognizable time.
-function parseGameTimeToMinutes(time: string): number | null {
-  const m = time?.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-  if (!m) return null;
-  let h = parseInt(m[1], 10);
-  const min = parseInt(m[2], 10);
-  const ap = m[3].toUpperCase();
-  if (ap === "PM" && h !== 12) h += 12;
-  if (ap === "AM" && h === 12) h = 0;
-  return h * 60 + min;
-}
-
-// Current wall-clock time in IST as minutes since midnight.
-function istNowMinutes(): number {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Asia/Kolkata",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).formatToParts(new Date());
-  const h = parseInt(parts.find((p) => p.type === "hour")?.value || "0", 10);
-  const min = parseInt(parts.find((p) => p.type === "minute")?.value || "0", 10);
-  return (h % 24) * 60 + min;
-}
-
-// A game's "today" result should only show once its scheduled IST time has passed.
-// Before that the result hasn't been declared yet, so show "XX".
-// If the time can't be parsed we don't gate (return the value as-is).
-function gateTodayByTime(today: string, time: string): string {
-  const resultMin = parseGameTimeToMinutes(time);
-  if (resultMin === null) return today;
-  return istNowMinutes() < resultMin ? "XX" : today;
+function ResultSpotlightCard({
+  label,
+  game,
+  emptyText,
+  tone,
+  lang,
+}: {
+  label: string;
+  game: ResultSpotlight | GameResult | SK24Game | null;
+  emptyText: string;
+  tone: "upcoming" | "recent";
+  lang: "hi" | "en";
+}) {
+  const isRecent = tone === "recent";
+  return (
+    <div
+      className="rounded-2xl border-2 border-black bg-white/90 p-4 shadow-[4px_4px_0_#171717]"
+    >
+      <div className="flex items-center gap-2">
+        <span className={`h-2.5 w-2.5 rounded-full ${isRecent ? "bg-emerald-400 animate-live-pulse" : "bg-amber-400"}`} />
+        <p className={`text-[11px] font-black uppercase tracking-widest ${isRecent ? "text-emerald-700" : "text-neutral-800"}`}>
+          {label}
+        </p>
+      </div>
+      {game ? (
+        <div className="mt-2 flex items-end justify-between gap-3">
+          <div className="min-w-0">
+            <p className="truncate text-base font-black uppercase text-black">{game.name}</p>
+            <p className="mt-0.5 text-xs font-semibold text-neutral-600">
+              {game.time || t("समय जल्द आएगा", "Time to be announced", lang)}
+            </p>
+          </div>
+          <div className={`font-mono text-3xl font-black ${isRecent ? "text-emerald-700" : "text-black"}`}>
+            {isRecent ? game.today : "XX"}
+          </div>
+        </div>
+      ) : (
+        <p className="mt-3 text-sm font-semibold text-neutral-700">{emptyText}</p>
+      )}
+    </div>
+  );
 }
 
 // Ordinal suffix for a day number, e.g. 1 -> "st", 27 -> "th".
@@ -547,21 +670,21 @@ function GameCardSection({
       <div className="overflow-x-auto border-2 border-black rounded-xl">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="bg-black text-white">
+            <tr className="bg-yellow-200 text-black">
               <th className="border border-black px-3 py-3 text-left">
                 Game
               </th>
 
               <th className="border border-black px-3 py-2 text-center">
                 <div>Yesterday</div>
-                <div className="text-[11px] md:text-xs font-semibold text-green-300 mt-0.5">
+                <div className="text-[11px] md:text-xs font-semibold text-green-600 mt-0.5">
                   {istDayLabel(-1)}
                 </div>
               </th>
 
               <th className="border border-black px-3 py-2 text-center">
                 <div>Today</div>
-                <div className="text-[11px] md:text-xs font-semibold text-green-300 mt-0.5">
+                <div className="text-[11px] md:text-xs font-semibold text-green-600 mt-0.5">
                   {istDayLabel(0)}
                 </div>
               </th>
@@ -585,14 +708,14 @@ function GameCardSection({
                   className="bg-gray-100 hover:bg-yellow-50 transition"
                 >
                   {/* Game Name */}
-                  <td className="border border-black px-1 py-2 bg-amber-50 text-center">
+                  <td className="border border-black px-1 py-2 bg-yellow-100 text-center">
                     <div className="font-black uppercase text-sm md:text-base leading-none">
                       {game.name}
                     </div>
                     <div className="text-[10px] text-black leading-none mt-1">{game.time}</div>
                     <Link
                       href={`/chart/${slug}`}
-                      className="inline-block text-[10px] font-bold text-blue-600 hover:text-blue-800 leading-none mt-0.5"
+                      className="inline-block text-[10px] font-bold text-yellow-700 hover:text-yellow-900 leading-none mt-0.5"
                     >
                       Chart →
                     </Link>
@@ -636,7 +759,7 @@ function SK24ChartsSection({ tables, lang }: { tables: SK24ChartTable[]; lang: "
   return (
     <div className="sa opacity-0 translate-y-8 space-y-6">
       <div className="flex items-center gap-2.5 md:gap-3 mb-1">
-        <div className="p-2.5 rounded-xl bg-teal-600 text-white shrink-0 shadow-md">
+        <div className="p-2.5 rounded-xl bg-yellow-200 text-black border border-black shrink-0 shadow-md">
           <FiBarChart2 size={18} />
         </div>
         <div>
@@ -650,13 +773,13 @@ function SK24ChartsSection({ tables, lang }: { tables: SK24ChartTable[]; lang: "
       </div>
       {tables.map((table, idx) => (
         <div key={idx} className="bg-white rounded-2xl border-2 border-gray-300 overflow-hidden shadow-sm">
-          <div className="bg-teal-600 text-white text-center py-2.5 px-3 text-sm md:text-base font-bold">
+          <div className="bg-yellow-200 text-black text-center py-2.5 px-3 text-sm md:text-base font-bold">
             {table.title}
           </div>
           <div className="overflow-x-auto">
             <table className="w-full table-fixed text-sm md:text-base border-collapse">
               <thead>
-                <tr className="bg-gray-800 text-white text-xs md:text-sm uppercase">
+                <tr className="bg-black text-yellow-100 text-xs md:text-sm uppercase">
                   {table.headers.map((h, hi) => (
                     <th key={hi} className="py-2 px-1 md:px-3 font-semibold border border-gray-300">
                       {h}
@@ -694,8 +817,9 @@ function SK24ChartsSection({ tables, lang }: { tables: SK24ChartTable[]; lang: "
 
 
 function WhatsAppContactSection({ lang, khaiwal }: any) {
-  const phone =  "918708328760";
-  const name =  "Arun bhai Khaiwal";
+  const phone = khaiwal?.whatsapp || "918708328760";
+  const name = khaiwal?.name || "Arun bhai Khaiwal";
+  const whatsappPhone = String(phone).replace(/\D/g, "");
 
   const games = [
     { name: t("सदर बाजार", "Sadar Bazar", lang), time: "1:20 PM" },
@@ -722,7 +846,7 @@ function WhatsAppContactSection({ lang, khaiwal }: any) {
             ⭐ Direct Company No.1 Khaiwal ⭐
           </p>
 
-          <h2 className="mt-3 text-2xl md:text-4xl font-black text-[#1a1a2e]">
+          <h2 className="mt-3 text-2xl md:text-4xl font-black text-neutral-950">
 
             {name}
           </h2>
@@ -742,7 +866,7 @@ function WhatsAppContactSection({ lang, khaiwal }: any) {
                   <span>{game.name}</span>
                 </div>
 
-                <span className="font-black text-[#1a1a2e]">
+                <span className="font-black text-neutral-950">
                   {game.time}
                 </span>
               </div>
@@ -756,7 +880,7 @@ function WhatsAppContactSection({ lang, khaiwal }: any) {
             <p className="text-xs font-bold text-gray-500 uppercase">
               Jodi Rate
             </p>
-            <p className="text-2xl font-black text-blue-700">
+            <p className="text-2xl font-black text-yellow-700">
               10-960
             </p>
           </div>
@@ -765,7 +889,7 @@ function WhatsAppContactSection({ lang, khaiwal }: any) {
             <p className="text-xs font-bold text-gray-500 uppercase">
               Haruf Rate
             </p>
-            <p className="text-2xl font-black text-blue-700">
+            <p className="text-2xl font-black text-yellow-700">
               100-960
             </p>
           </div>
@@ -785,8 +909,8 @@ function WhatsAppContactSection({ lang, khaiwal }: any) {
         {/* Phone */}
         <div className="text-center px-4">
           <a
-            href={`tel:+918708328760`}
-            className="inline-block text-3xl md:text-4xl font-black text-blue-700 border-b-4 border-blue-700"
+            href={`tel:+${whatsappPhone}`}
+            className="inline-block text-3xl md:text-4xl font-black text-yellow-700 border-b-4 border-yellow-500"
           >
             +{phone}
           </a>
@@ -794,8 +918,8 @@ function WhatsAppContactSection({ lang, khaiwal }: any) {
 
         {/* Footer Text */}
         <div className="text-center px-4 pt-5">
-          <p className="font-black text-xl md:text-2xl text-[#1a1a2e]">
-            😊😊Arun Bhai Khaiwal 😊😊
+          <p className="font-black text-xl md:text-2xl text-neutral-950">
+            😊😊{name} 😊😊
           </p>
 
           <p className="mt-2 text-sm md:text-base font-bold text-gray-700">
@@ -806,7 +930,7 @@ function WhatsAppContactSection({ lang, khaiwal }: any) {
         {/* WhatsApp Button */}
         <div className="px-4 pb-8 pt-5 flex justify-center">
           <a
-           href={`https://wa.me/+918708328760?text=${encodeURIComponent("A7 SATTA")}`}
+            href={`https://wa.me/${whatsappPhone}?text=${encodeURIComponent("A7 SATTA")}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-4 bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-full font-black text-lg shadow-lg hover:scale-105 transition-all"
@@ -945,7 +1069,7 @@ function MonthlyChartSection({
       {/* Chart Table */}
       {chartLoading ? (
         <div className="bg-white rounded-2xl border-2 border-gray-300 overflow-hidden shadow-sm">
-          <div className="bg-[#1a1a2e] text-white text-center py-2.5 px-3 text-sm md:text-base font-bold">
+          <div className="bg-yellow-200 text-black text-center py-2.5 px-3 text-sm md:text-base font-bold">
             {title}
           </div>
           <div className="p-8 text-center">
@@ -955,13 +1079,13 @@ function MonthlyChartSection({
         </div>
       ) : rows.length > 0 ? (
         <div className="bg-white rounded-2xl border-2 border-gray-300 overflow-hidden shadow-sm">
-          <div className="bg-[#1a1a2e] text-white text-center py-2.5 px-3 text-sm md:text-base font-bold">
+          <div className="bg-yellow-200 text-black text-center py-2.5 px-3 text-sm md:text-base font-bold">
             {title}
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm md:text-base border-collapse">
               <thead>
-                <tr className="bg-gray-800 text-white text-[10px] md:text-xs uppercase">
+                <tr className="bg-black text-yellow-100 text-[10px] md:text-xs uppercase">
                   <th className="py-2 px-1.5 md:px-3 font-semibold border border-gray-300">
                     {t("तारीख", "Date", lang)}
                   </th>

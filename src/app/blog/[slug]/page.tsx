@@ -208,7 +208,7 @@ export default async function BlogDetailPage({
         </div>
 
         {/* Footer CTA */}
-        <div className="mt-10 rounded-2xl bg-[#1a1a2e] p-6 text-center">
+        <div className="mt-10 rounded-2xl bg-neutral-950 border-2 border-yellow-400 p-6 text-center">
           <p className="text-white font-bold text-lg mb-1">
             Live A7 Satta Result देखें
           </p>
@@ -217,7 +217,7 @@ export default async function BlogDetailPage({
           </p>
           <Link
             href="/"
-            className="inline-block bg-amber-500 hover:bg-amber-600 text-white font-semibold text-sm px-6 py-2.5 rounded-xl transition-colors"
+            className="inline-block bg-yellow-200 hover:bg-yellow-300 text-black font-semibold text-sm px-6 py-2.5 rounded-xl transition-colors"
           >
             आज का रिजल्ट देखें &rarr;
           </Link>

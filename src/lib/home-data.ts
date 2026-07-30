@@ -6,6 +6,7 @@ import {
 } from "./firebase-cache";
 import { getAdminDb } from "./firebase-admin";
 import { getISTDateString } from "./utils";
+import { getKhaiwalSettings } from "./khaiwal-mongodb";
 import type {
   GameResult,
   ChartRow,
@@ -59,13 +60,14 @@ export async function getHomeData(): Promise<HomeData> {
   const today = getISTDateString(0);
   const yesterday = getISTDateString(-1);
 
-  const [homepage, sk24, sk24chart, chart, custom, customPrev] = await Promise.all([
+  const [homepage, sk24, sk24chart, chart, custom, customPrev, khaiwal] = await Promise.all([
     getHomepageFromFirestore(),
     getSK24GamesFromFirestore(),
     getSK24ChartsFromFirestore(),
     getMonthlyChartFromFirestore(monthName, year),
     getCustomGamesForDate(today),
     getCustomGamesForDate(yesterday),
+    getKhaiwalSettings().catch(() => null),
   ]);
 
   return {
@@ -81,6 +83,6 @@ export async function getHomeData(): Promise<HomeData> {
     },
     customGames: custom.games || {},
     customGamesYesterday: customPrev.games || {},
-    khaiwal: custom.khaiwal || null,
+    khaiwal: khaiwal || custom.khaiwal || null,
   };
 }

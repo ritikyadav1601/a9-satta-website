@@ -41,9 +41,9 @@ export default function ContactPage() {
           {/* Phone Card */}
           <a
             href={`tel:+${phone}`}
-            className="bg-gray-50 rounded-2xl border border-gray-200 p-5 flex items-start gap-4 hover:shadow-lg hover:border-blue-300 transition-all group"
+            className="bg-yellow-50 rounded-2xl border border-yellow-200 p-5 flex items-start gap-4 hover:shadow-lg hover:border-yellow-400 transition-all group"
           >
-            <div className="p-3 rounded-xl bg-blue-600 text-white shrink-0 group-hover:scale-110 transition-transform">
+            <div className="p-3 rounded-xl bg-yellow-200 text-black shrink-0 group-hover:scale-110 transition-transform">
               <FiPhone size={24} />
             </div>
             <div>
@@ -51,14 +51,14 @@ export default function ContactPage() {
               <p className="text-gray-500 text-sm mt-0.5">
                 {t("सीधे कॉल करें", "Call us directly", lang)}
               </p>
-              <p className="text-blue-600 font-bold text-sm mt-2">+{phone}</p>
+              <p className="text-yellow-700 font-bold text-sm mt-2">+{phone}</p>
             </div>
           </a>
 
         </div>
 
         {/* WhatsApp CTA */}
-        <div className="bg-[#1a1a2e] rounded-2xl p-6 md:p-8 text-center">
+        <div className="bg-neutral-950 border-2 border-yellow-400 rounded-2xl p-6 md:p-8 text-center">
           <p className="text-white font-bold text-lg mb-1">
             {t("गेम खेलने के लिए संपर्क करें", "Game play karne ke liye contact kare", lang)}
           </p>

@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { getAdminDb } from "@/lib/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
+import { getKhaiwalSettings, saveKhaiwalSettings } from "@/lib/khaiwal-mongodb";
 
 const COLLECTION = "custom_games";
 const ADMIN_EMAIL = "kapil123@gmail.com";
@@ -62,11 +63,14 @@ export async function GET(req: NextRequest) {
 
     // Single-date mode (homepage)
     const today = searchParams.get("date") || new Date().toISOString().slice(0, 10);
-    const snap = await getAdminDb().collection(COLLECTION).doc(today).get();
+    const [snap, mongoKhaiwal] = await Promise.all([
+      getAdminDb().collection(COLLECTION).doc(today).get(),
+      getKhaiwalSettings().catch(() => null),
+    ]);
     const data = snap.data() || {};
 
     if (!snap.exists) {
-      return Response.json({ success: true, games: {}, khaiwal: null });
+      return Response.json({ success: true, games: {}, khaiwal: mongoKhaiwal });
     }
     
     return Response.json({
@@ -78,7 +82,7 @@ export async function GET(req: NextRequest) {
         "palwal-city": data["palwal-city"] || "",
         "mathura-city": data["mathura-city"] || "",
       },
-      khaiwal: data.khaiwal || null,   // ✅ ADD THIS
+      khaiwal: mongoKhaiwal || data.khaiwal || null,
     });
     // if (!snap.exists) {
     //   return Response.json({ success: true, games: {} });
@@ -145,6 +149,7 @@ const targetDate = date || new Date().toISOString().slice(0, 10);
 const docRef = getAdminDb().collection(COLLECTION).doc(targetDate);
 const existing = await docRef.get();
 const existingData = existing.exists ? existing.data() || {} : {};
+const existingMongoKhaiwal = await getKhaiwalSettings().catch(() => null);
 
 // ✅ Khaiwal can be saved on its own (name/whatsapp) or together with games.
 // Accept a partial update — keep any field the admin didn't send.
@@ -152,16 +157,19 @@ const hasKhaiwalInput =
   khaiwal != null || khaiwalName != null || whatsapp != null;
 
 const finalKhaiwal = !hasKhaiwalInput
-  ? existingData.khaiwal || null
+  ? existingMongoKhaiwal || existingData.khaiwal || null
   : khaiwal || {
-      name: khaiwalName ?? existingData.khaiwal?.name ?? "",
-      whatsapp: whatsapp ?? existingData.khaiwal?.whatsapp ?? "",
+      name: khaiwalName ?? existingMongoKhaiwal?.name ?? existingData.khaiwal?.name ?? "",
+      whatsapp: whatsapp ?? existingMongoKhaiwal?.whatsapp ?? existingData.khaiwal?.whatsapp ?? "",
     };
+
+if (hasKhaiwalInput && finalKhaiwal) {
+  await saveKhaiwalSettings(finalKhaiwal);
+}
 
 const updatedData = {
   ...existingData,
   ...(games || {}),
-  khaiwal: finalKhaiwal,
   updatedAt: Date.now(),
 };
 
