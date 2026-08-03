@@ -162,6 +162,7 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
     customGames,
     customGamesYesterday,
     khaiwal,
+    topGames: mongoTopGames,
   } = homeData;
 
   useEffect(() => {
@@ -302,7 +303,7 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
     "delhi bazar": ["delhibazar", "dlbz"],
     "shri ganesh": ["shriganesh", "srgn"],
   };
-  const section3Games: SK24Game[] = section3GameNames.map(name => {
+  const fallbackSection3Games: SK24Game[] = section3GameNames.map(name => {
     const norm = name.toLowerCase().replace(/\s+/g, "");
     const aliases = section3Aliases[name.toLowerCase()] || [];
     const allNames = [norm, ...aliases];
@@ -326,23 +327,36 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
       SPOTLIGHT_SCHEDULE.find((game) => resultKey(game as SK24Game) === name)?.time || "";
     return { name: name.toUpperCase(), time: scheduledTime, yesterday: "XX", today: "XX" };
   });
+  const section3Games = mongoTopGames.length === SPOTLIGHT_SCHEDULE.length
+    ? mongoTopGames
+    : fallbackSection3Games;
 
-  // Follow the current declaration run and stop at its first pending value.
-  // Desawar may already contain its early-morning result, so a declared value
-  // after an earlier XX must not jump the cards to the next day's Sadar.
-  const firstPendingIndex = section3Games.findIndex((game) => !isDeclaredResult(game.today));
-  const upcomingResult =
-    firstPendingIndex >= 0
-      ? section3Games[firstPendingIndex]
-      : { ...section3Games[0], today: "XX" };
-  const recentResult =
-    firstPendingIndex > 0
-      ? section3Games[firstPendingIndex - 1]
-      : firstPendingIndex === 0 && isDeclaredResult(section3Games.at(-1)?.today)
-        ? section3Games.at(-1) || null
-        : firstPendingIndex === -1
-          ? section3Games.at(-1) || null
-          : null;
+  // Declaration cycle used by the spotlight boxes:
+  // Desawar -> Sadar -> ... -> Gali -> Desawar.
+  // MongoDB maps early-morning Desawar to the end/start boundary, so a newly
+  // declared Sadar belongs to the next cycle and follows Desawar correctly.
+  const desawarResult = section3Games.at(-1) || null;
+  const daytimeGames = section3Games.slice(0, -1);
+  const lastDeclaredDaytimeIndex = daytimeGames.findLastIndex((game) =>
+    isDeclaredResult(game.today),
+  );
+
+  let declaredResult: SK24Game | null = null;
+  let upcomingResult: SK24Game | null = desawarResult
+    ? { ...desawarResult, today: "XX" }
+    : null;
+
+  if (desawarResult && isDeclaredResult(desawarResult.today)) {
+    declaredResult = desawarResult;
+    upcomingResult = daytimeGames[0]
+      ? { ...daytimeGames[0], today: "XX" }
+      : null;
+  } else if (lastDeclaredDaytimeIndex >= 0) {
+    declaredResult = daytimeGames[lastDeclaredDaytimeIndex];
+    const nextGame =
+      daytimeGames[lastDeclaredDaytimeIndex + 1] || desawarResult;
+    upcomingResult = nextGame ? { ...nextGame, today: "XX" } : null;
+  }
 
   // Filter remaining games: exclude top 9 games and 3rd section games from other sections
   const allFixedNames = new Set<string>();
@@ -390,14 +404,12 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
             game={upcomingResult}
             emptyText={t("अगला गेम जल्द दिखेगा", "Next game will appear soon", lang)}
             tone="upcoming"
-            lang={lang}
           />
           <ResultSpotlightCard
-            label={t("हाल ही में अपडेट हुआ", "Recently Updated", lang)}
-            game={recentResult}
-            emptyText={t("आज के पहले रिजल्ट का इंतज़ार", "Waiting for today's first result", lang)}
+            label={t("घोषित रिजल्ट", "Declared Result", lang)}
+            game={declaredResult}
+            emptyText={t("पहले घोषित रिजल्ट का इंतज़ार", "Waiting for the first declared result", lang)}
             tone="recent"
-            lang={lang}
           />
         </div>
         <div className="mt-4 inline-flex items-center gap-2 bg-white/70 border border-black/20 rounded-full px-4 py-2 text-xs font-bold text-neutral-800 shadow-sm">
@@ -432,7 +444,7 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
           <>
             {/* ─── 1ST SECTION: Top 9 Games ─── */}
             <GameCardSection
-              title={t("अन्य गेम रिजल्ट", "Other Game Results", lang)}
+              title={t("अन्य गेम रिजल्ट", "Top Game Results", lang)}
               subtitle={t("सदर बाज़ार, ग्वालियर, दिल्ली बाज़ार और अन्य", "Sadar Bazar, Gwalior, Delhi Bazar & more", lang)}
               icon={<FiBarChart2 size={18} />}
               headerBg="bg-yellow-400"
@@ -455,7 +467,7 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
 
             {/* ─── 4RD SECTION: Specific Games ─── */}
            <GameCardSection
-              title={t("आज के A7 सट्टा रिजल्ट", "Today A7 Satta Results", lang)}
+              title={t("आज के A7 सट्टा रिजल्ट", "Other Satta Results", lang)}
               subtitle={t("इंटरनेट पर सबसे तेज़ A7 सट्टा रिजल्ट", "Fastest A7 Satta result on internet", lang)}
               icon={<FiZap size={18} />}
               headerBg="bg-yellow-400"
@@ -559,13 +571,11 @@ function ResultSpotlightCard({
   game,
   emptyText,
   tone,
-  lang,
 }: {
   label: string;
   game: ResultSpotlight | GameResult | SK24Game | null;
   emptyText: string;
   tone: "upcoming" | "recent";
-  lang: "hi" | "en";
 }) {
   const isRecent = tone === "recent";
   return (
@@ -582,9 +592,6 @@ function ResultSpotlightCard({
         <div className="mt-2 flex items-end justify-between gap-3">
           <div className="min-w-0">
             <p className="truncate text-base font-black uppercase text-black">{game.name}</p>
-            <p className="mt-0.5 text-xs font-semibold text-neutral-600">
-              {game.time || t("समय जल्द आएगा", "Time to be announced", lang)}
-            </p>
           </div>
           <div className={`font-mono text-3xl font-black ${isRecent ? "text-emerald-700" : "text-black"}`}>
             {isRecent ? game.today : "XX"}
@@ -677,16 +684,12 @@ function GameCardSection({
 
               <th className="border border-black px-3 py-2 text-center">
                 <div>Yesterday</div>
-                <div className="text-[11px] md:text-xs font-semibold text-green-600 mt-0.5">
-                  {istDayLabel(-1)}
-                </div>
+                
               </th>
 
               <th className="border border-black px-3 py-2 text-center">
                 <div>Today</div>
-                <div className="text-[11px] md:text-xs font-semibold text-green-600 mt-0.5">
-                  {istDayLabel(0)}
-                </div>
+               
               </th>
             </tr>
           </thead>
