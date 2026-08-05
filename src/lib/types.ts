@@ -44,6 +44,7 @@ export interface SK24Game {
   time: string;
   yesterday: string;
   today: string;
+  updatedAt?: string | number | Date | null;
 }
 
 export interface SK24GamesData {

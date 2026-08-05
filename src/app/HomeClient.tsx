@@ -22,6 +22,7 @@ interface SK24Game {
   time: string;
   yesterday: string;
   today: string;
+  updatedAt?: string | number | Date | null;
 }
 
 interface SK24ChartTable {
@@ -84,6 +85,30 @@ const SPOTLIGHT_GAME_NAMES = new Set([
 
 function isDeclaredResult(value: string | undefined) {
   return Boolean(value && value !== "XX" && value !== "--");
+}
+
+function timeToMinutes(time = "") {
+  const match = time.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+  if (!match) return 0;
+  let hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  const period = match[3]?.toUpperCase();
+  if (period) {
+    hours %= 12;
+    if (period === "PM") hours += 12;
+  }
+  return hours * 60 + minutes;
+}
+
+function currentIstMinutes(date = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Kolkata",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return Number(values.hour) * 60 + Number(values.minute);
 }
 
 function resultKey(game: GameResult | SK24Game) {
@@ -331,32 +356,34 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
     ? mongoTopGames
     : fallbackSection3Games;
 
-  // Declaration cycle used by the spotlight boxes:
-  // Desawar -> Sadar -> ... -> Gali -> Desawar.
-  // MongoDB maps early-morning Desawar to the end/start boundary, so a newly
-  // declared Sadar belongs to the next cycle and follows Desawar correctly.
-  const desawarResult = section3Games.at(-1) || null;
-  const daytimeGames = section3Games.slice(0, -1);
-  const lastDeclaredDaytimeIndex = daytimeGames.findLastIndex((game) =>
+  // Match the reference site's spotlight logic: choose the next still-pending
+  // game by IST schedule, and choose the most recently saved declared result.
+  const gamesByTime = [...section3Games].sort(
+    (a, b) => timeToMinutes(a.time) - timeToMinutes(b.time),
+  );
+  const nowIst = currentIstMinutes();
+  const nextPending =
+    gamesByTime.find(
+      (game) => timeToMinutes(game.time) > nowIst && !isDeclaredResult(game.today),
+    ) || gamesByTime.find((game) => !isDeclaredResult(game.today));
+  const recentCandidates = section3Games.filter((game) =>
     isDeclaredResult(game.today),
   );
-
-  let declaredResult: SK24Game | null = null;
-  let upcomingResult: SK24Game | null = desawarResult
-    ? { ...desawarResult, today: "XX" }
-    : null;
-
-  if (desawarResult && isDeclaredResult(desawarResult.today)) {
-    declaredResult = desawarResult;
-    upcomingResult = daytimeGames[0]
-      ? { ...daytimeGames[0], today: "XX" }
+  const declaredResult =
+    [...recentCandidates].sort(
+      (a, b) =>
+        new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime(),
+    )[0] ||
+    gamesByTime.filter(
+      (game) => timeToMinutes(game.time) <= nowIst && isDeclaredResult(game.today),
+    ).at(-1) ||
+    null;
+  const firstScheduledGame = gamesByTime[0] || null;
+  const upcomingResult = nextPending
+    ? { ...nextPending, today: "XX" }
+    : firstScheduledGame
+      ? { ...firstScheduledGame, today: "XX" }
       : null;
-  } else if (lastDeclaredDaytimeIndex >= 0) {
-    declaredResult = daytimeGames[lastDeclaredDaytimeIndex];
-    const nextGame =
-      daytimeGames[lastDeclaredDaytimeIndex + 1] || desawarResult;
-    upcomingResult = nextGame ? { ...nextGame, today: "XX" } : null;
-  }
 
   // Filter remaining games: exclude top 9 games and 3rd section games from other sections
   const allFixedNames = new Set<string>();

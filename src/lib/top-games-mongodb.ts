@@ -29,6 +29,7 @@ type ResultDocument = {
   game?: ObjectId | string;
   resultDate?: string;
   result?: string | number;
+  updatedAt?: Date | string | number;
 };
 
 declare global {
@@ -42,6 +43,17 @@ function normalizeName(value: string) {
 function cleanResult(value: unknown) {
   const result = String(value ?? "").trim();
   return /^\d{1,2}$/.test(result) ? result.padStart(2, "0") : "XX";
+}
+
+function currentIstMinutes(date = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Kolkata",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return Number(values.hour) * 60 + Number(values.minute);
 }
 
 async function getDatabase() {
@@ -67,8 +79,11 @@ export async function getTopGamesFromMongoDB(): Promise<SK24Game[]> {
       .find(Boolean),
   }));
   const gameIds = selectedGames.flatMap(({ game }) => (game ? [game._id] : []));
-  const today = getISTDateString(0);
-  const yesterday = getISTDateString(-1);
+  // Match the source site's result board: the previous day's board remains
+  // active until 03:00 IST so late-night/early-morning games stay together.
+  const boardOffset = currentIstMinutes() < 180 ? -1 : 0;
+  const today = getISTDateString(boardOffset);
+  const yesterday = getISTDateString(boardOffset - 1);
   const results = gameIds.length
     ? await database
         .collection<ResultDocument>("gameresults")
@@ -80,18 +95,26 @@ export async function getTopGamesFromMongoDB(): Promise<SK24Game[]> {
   const resultByGameAndDate = new Map(
     results.map((result) => [
       `${String(result.game)}:${result.resultDate}`,
-      cleanResult(result.result),
+      result,
     ]),
   );
 
-  return selectedGames.map(({ definition, game }) => ({
-    name: definition.name,
-    time: definition.time,
-    yesterday: game
-      ? resultByGameAndDate.get(`${String(game._id)}:${yesterday}`) || "XX"
-      : "XX",
-    today: game
-      ? resultByGameAndDate.get(`${String(game._id)}:${today}`) || "XX"
-      : "XX",
-  }));
+  return selectedGames.map(({ definition, game }) => {
+    const previousResult = game
+      ? resultByGameAndDate.get(`${String(game._id)}:${yesterday}`)
+      : undefined;
+    const currentResult = game
+      ? resultByGameAndDate.get(`${String(game._id)}:${today}`)
+      : undefined;
+
+    return {
+      name: definition.name,
+      time: definition.time,
+      yesterday: cleanResult(previousResult?.result),
+      today: cleanResult(currentResult?.result),
+      updatedAt: currentResult?.updatedAt
+        ? new Date(currentResult.updatedAt).toISOString()
+        : null,
+    };
+  });
 }
