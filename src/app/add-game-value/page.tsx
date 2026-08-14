@@ -681,7 +681,7 @@ export default function AddGameValuePage() {
             onChange={(e) => setPassword(e.target.value)}
           />
           <button
-            className="bg-yellow-200 text-black font-bold w-full py-2 rounded-xl"
+            className="bg-brand-100 text-slate-900 font-bold w-full py-2 rounded-xl"
             onClick={handleLogin}
           >
             Login
@@ -761,7 +761,7 @@ export default function AddGameValuePage() {
         {/* SAVE BUTTON */}
         <button
           onClick={handleSave}
-          className="bg-yellow-200 text-black font-bold w-full py-3 rounded-xl mt-4"
+          className="bg-brand-100 text-slate-900 font-bold w-full py-3 rounded-xl mt-4"
         >
           Save Result
         </button>

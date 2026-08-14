@@ -59,7 +59,7 @@ function linkify(text: string) {
           href={SITE_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-amber-600 font-semibold hover:text-amber-700 hover:underline"
+          className="text-brand-700 font-semibold hover:text-brand-800 hover:underline"
         >
           {part}
         </a>
@@ -94,7 +94,7 @@ function renderBlock(block: Block, index: number) {
         <ul key={index} className="space-y-2 mb-5">
           {block.items.map((item, i) => (
             <li key={i} className="flex items-start gap-2 text-sm md:text-base text-gray-700">
-              <span className="text-amber-500 font-bold mt-0.5 shrink-0">&#10003;</span>
+              <span className="text-brand-600 font-bold mt-0.5 shrink-0">&#10003;</span>
               <span>{linkify(item)}</span>
             </li>
           ))}
@@ -169,11 +169,11 @@ export default async function BlogDetailPage({
       <article className="max-w-3xl mx-auto px-4 py-8 md:py-12">
         {/* Breadcrumb */}
         <nav className="text-xs md:text-sm text-gray-500 mb-5">
-          <Link href="/" className="hover:text-amber-600">
+          <Link href="/" className="hover:text-brand-700">
             Home
           </Link>
           <span className="mx-1.5">/</span>
-          <Link href="/blog" className="hover:text-amber-600">
+          <Link href="/blog" className="hover:text-brand-700">
             Blog
           </Link>
           <span className="mx-1.5">/</span>
@@ -186,7 +186,7 @@ export default async function BlogDetailPage({
             {post.tags.map((tag) => (
               <span
                 key={tag}
-                className="text-[10px] md:text-xs font-bold uppercase tracking-wide text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full"
+                className="text-[10px] md:text-xs font-bold uppercase tracking-wide text-brand-700 bg-brand-100 px-2 py-0.5 rounded-full"
               >
                 {tag}
               </span>
@@ -208,7 +208,7 @@ export default async function BlogDetailPage({
         </div>
 
         {/* Footer CTA */}
-        <div className="mt-10 rounded-2xl bg-neutral-950 border-2 border-yellow-400 p-6 text-center">
+        <div className="mt-10 rounded-2xl bg-brand-ink border-2 border-brand-400 p-6 text-center">
           <p className="text-white font-bold text-lg mb-1">
             Live A7 Satta Result देखें
           </p>
@@ -217,7 +217,7 @@ export default async function BlogDetailPage({
           </p>
           <Link
             href="/"
-            className="inline-block bg-yellow-200 hover:bg-yellow-300 text-black font-semibold text-sm px-6 py-2.5 rounded-xl transition-colors"
+            className="inline-block bg-brand-100 hover:bg-brand-200 text-slate-900 font-semibold text-sm px-6 py-2.5 rounded-xl transition-colors"
           >
             आज का रिजल्ट देखें &rarr;
           </Link>
@@ -226,7 +226,7 @@ export default async function BlogDetailPage({
         <div className="mt-8">
           <Link
             href="/blog"
-            className="text-sm font-semibold text-amber-600 hover:text-amber-700"
+            className="text-sm font-semibold text-brand-700 hover:text-brand-800"
           >
             &larr; सभी ब्लॉग देखें
           </Link>

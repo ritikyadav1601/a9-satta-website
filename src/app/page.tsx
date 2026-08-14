@@ -19,8 +19,8 @@ function getIndiaDate(): string {
 
 export async function generateMetadata(): Promise<Metadata> {
   const date = getIndiaDate();
-  const title = `Satta Online Result ${date} | Today's Satta King Result & Charts`;
-  const description = `Check the Satta Online Result for ${date} with today's Satta King Result, Gali Result, Desawar Result, Faridabad Result, Ghaziabad Result, historical charts, and old records on SattaOnlineResult.com.`;
+  const title = `Live Satta King ${date} – Live Result, Gali & Desawar Updates`;
+  const description = `View Live Satta King updates for ${date}. Track real-time satta result records, daily market charts, and verified schedules for Gali, Desawar, Faridabad, and Ghaziabad.`;
 
   return {
     // Absolute prevents the root title template from appending the site name.
@@ -49,33 +49,43 @@ export default async function HomePage() {
         "@id": `${SITE_URL}/#website`,
         url: SITE_URL,
         name: SITE_NAME,
+        description: "Real-time Satta King live results, market schedules, and 2026 historical record charts.",
         inLanguage: "en-IN",
       },
       {
         "@type": "FAQPage",
+        "@id": `${SITE_URL}/#faq`,
         mainEntity: [
           {
             "@type": "Question",
-            name: "What is SattaOnlineResult.com?",
+            name: "What is Live Satta King?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "SattaOnlineResult.com is an informational website providing Satta King Results, charts, old records, and historical result information in an organized format.",
+              text: "Live Satta King refers to real-time reporting of daily numerical outcomes published by independent local market organizers. Live-SattaKing.com collects and organizes these public figures for informational tracking.",
             },
           },
           {
             "@type": "Question",
-            name: "How often are Satta King Results updated?",
+            name: "When are Gali and Desawar updates announced?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "Result information is updated regularly whenever the latest publicly available updates become available.",
+              text: "Desawar is typically published around 05:00 AM IST, while Gali is generally declared around 11:30 PM IST. Timelines can vary.",
             },
           },
           {
             "@type": "Question",
-            name: "Can I check old Satta charts on this website?",
+            name: "How do I check past records on the live chart?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "Yes. Visitors can browse historical charts, previous records, and archived result information through dedicated chart sections.",
+              text: "Select a market's Chart link or use the monthly chart on the homepage to review preserved daily outcomes.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "What does an awaiting or pending status mean?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Awaiting Update means a verified figure has not yet been made publicly available. The status changes automatically after the result is released.",
             },
           },
         ],
@@ -84,8 +94,10 @@ export default async function HomePage() {
         "@type": "WebPage",
         "@id": `${SITE_URL}/#webpage`,
         url: SITE_URL,
-        name: `Satta Online Result ${date}`,
+        name: `Live Satta King ${date} – Real-Time Results & Daily Market Records`,
         isPartOf: { "@id": `${SITE_URL}/#website` },
+        description: "View Live Satta King updates with real-time satta result records, daily market charts, and verified schedules for Gali, Desawar, Faridabad, and Ghaziabad.",
+        inLanguage: "en-IN",
       },
     ],
   };

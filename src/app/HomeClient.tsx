@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { format } from "date-fns";
 import { FiClock, FiTrendingUp, FiZap, FiBarChart2, FiCalendar, FiChevronDown } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
@@ -84,7 +85,13 @@ const SPOTLIGHT_GAME_NAMES = new Set([
 ]);
 
 function isDeclaredResult(value: string | undefined) {
-  return Boolean(value && value !== "XX" && value !== "--");
+  const normalized = value?.trim();
+  return Boolean(
+    normalized &&
+    normalized !== "XX" &&
+    normalized !== "--" &&
+    normalized !== "__"
+  );
 }
 
 function timeToMinutes(time = "") {
@@ -405,18 +412,14 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
   const filteredRest = restResults.filter(g => !isInFixedList(g.name) && !isHidden(g.name));
 
   return (
-    <div ref={containerRef} className="bg-[#fffdf2]">
+    <div ref={containerRef} className="bg-background">
       {/* Hero */}
-      <div className="bg-gradient-to-br from-yellow-50 via-yellow-100 to-yellow-200 text-black text-center py-7 md:py-12 px-3 md:px-4 border-b-4 border-black">
-        <div className="inline-block mb-3 px-4 py-1.5 rounded-full bg-black border border-black shadow-md">
-          <span className="text-yellow-100 text-xs md:text-sm font-bold tracking-wider uppercase">
-            {t("लाइव रिजल्ट डैशबोर्ड", "Live Results Dashboard", lang)}
-          </span>
-        </div>
+      <div className="bg-gradient-to-br from-brand-50 via-brand-100 to-brand-200 text-slate-900 text-center py-7 md:py-12 px-3 md:px-4 border-b-4 border-brand-ink">
+       
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight mb-2">
-          Satta Online Result {format(new Date(), "yyyy")}
+          Live Satta King {format(new Date(), "dd MMMM yyyy")}
           <br className="md:hidden" />
-          <span className="inline-block rounded-lg bg-black px-2 text-yellow-100"> {t("लाइव रिजल्ट", "Live Results", lang)}</span>
+          <span className="mt-1 inline-block rounded-lg bg-brand-ink px-2 text-brand-100"> {t("रियल-टाइम रिजल्ट और दैनिक मार्केट रिकॉर्ड", "Real-Time Results & Daily Market Records", lang)}</span>
         </h1>
         <p className="text-neutral-800 font-medium text-sm md:text-base max-w-2xl mx-auto">
           {t(
@@ -439,22 +442,22 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
             tone="recent"
           />
         </div>
-        <div className="mt-4 inline-flex items-center gap-2 bg-white/70 border border-black/20 rounded-full px-4 py-2 text-xs font-bold text-neutral-800 shadow-sm">
+        <div className="mt-4 inline-flex items-center gap-2 bg-white/70 border border-slate-900/20 rounded-full px-4 py-2 text-xs font-bold text-slate-800 shadow-sm">
           <span className="w-2 h-2 bg-green-400 rounded-full animate-live-pulse" />
           {t("अंतिम अपडेट", "Last Updated", lang)}: {updatedAt}
         </div>
       </div>
 
       {/* Disclaimer */}
-      <div className="bg-yellow-100 border-b border-yellow-300 py-1.5 px-2 md:px-4">
+      <div className="bg-brand-50 border-b border-brand-200 py-1.5 px-2 md:px-4">
         <p className="text-center text-[11px] md:text-xs text-gray-500 max-w-4xl mx-auto">
           <span className="font-bold text-red-500">{t("अस्वीकरण", "DISCLAIMER", lang)}:</span>{" "}
           {t(
-            "SattaOnlineResult.com एक स्वतंत्र सूचनात्मक वेबसाइट है। हम जुआ या सट्टेबाजी को बढ़ावा नहीं देते।",
-            "SattaOnlineResult.com is an independent informational website. We do not promote gambling or betting.",
+            "Live-SattaKing.com एक स्वतंत्र सूचनात्मक वेबसाइट है। हम जुआ या सट्टेबाजी को बढ़ावा नहीं देते।",
+            "Live-SattaKing.com is an independent informational website. We do not promote gambling or betting.",
             lang
           )}{" "}
-          <Link href="/disclaimer" className="text-yellow-700 hover:underline font-bold">
+          <Link href="/disclaimer" className="text-brand-700 hover:underline font-bold">
             {t("पूरा अस्वीकरण पढ़ें", "Read Full Disclaimer", lang)}
           </Link>
         </p>
@@ -471,11 +474,11 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
           <>
             {/* ─── 1ST SECTION: Top 9 Games ─── */}
             <GameCardSection
-              title={t("अन्य गेम रिजल्ट", "Top Game Results", lang)}
+              title={t("रियल-टाइम सट्टा रिजल्ट लाइव डैशबोर्ड", "Real-Time Satta Result Live Dashboard", lang)}
               subtitle={t("सदर बाज़ार, ग्वालियर, दिल्ली बाज़ार और अन्य", "Sadar Bazar, Gwalior, Delhi Bazar & more", lang)}
               icon={<FiBarChart2 size={18} />}
-              headerBg="bg-yellow-400"
-              accentColor="text-yellow-700"
+              headerBg="bg-brand-500"
+              accentColor="text-brand-700"
               games={section3Games}
               isLive
               lang={lang}
@@ -497,8 +500,8 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
               title={t("आज के A7 सट्टा रिजल्ट", "Other Satta Results", lang)}
               subtitle={t("इंटरनेट पर सबसे तेज़ A7 सट्टा रिजल्ट", "Fastest A7 Satta result on internet", lang)}
               icon={<FiZap size={18} />}
-              headerBg="bg-yellow-400"
-              accentColor="text-yellow-700"
+              headerBg="bg-brand-500"
+              accentColor="text-brand-700"
               games={topGames}
               isLive
               lang={lang}
@@ -553,40 +556,13 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
           </>
         )}
 
-        {/* Welcome */}
-        <div className="sa opacity-0 translate-y-8 bg-yellow-50 rounded-2xl border-2 border-yellow-300 p-5 md:p-8 space-y-3 text-sm text-gray-700 leading-relaxed">
-          <p>
-            {t(
-              <>
-                <strong className="text-gray-900">SattaOnlineResult.com</strong> में आपका स्वागत है - लाइव <strong className="text-gray-900">A7 सट्टा रिजल्ट</strong> ट्रैक करने का सबसे अच्छा प्लेटफॉर्म। हमारा सिस्टम रिजल्ट घोषित होते ही तुरंत अपडेट करता है।
-              </> as unknown as string,
-              <>
-                Welcome to <strong className="text-gray-900">SattaOnlineResult.com</strong> - the ultimate platform for tracking live <strong className="text-gray-900">A7 Satta results</strong>. Our infrastructure delivers results the exact moment they are declared.
-              </> as unknown as string,
-              lang
-            )}
-          </p>
-          <p>
-            {t(
-              "100% सटीक दैनिक अपडेट, ऐतिहासिक चार्ट और 100+ राष्ट्रीय व क्षेत्रीय बाजारों की जानकारी, पूरी तरह मुफ्त पाएं।",
-              "Get 100% accurate daily updates, historical charts, and insights for over 100+ national and regional markets, completely free.",
-              lang
-            )}
-          </p>
-        </div>
+       
 
         {/* CTA */}
-        <div className="sa opacity-0 translate-y-8 bg-yellow-200 border-2 border-black rounded-2xl p-5 md:p-6 text-center shadow-[5px_5px_0_#171717]">
-          <p className="text-lg md:text-xl font-black text-black">
-            {t("अपना गेम यहाँ एडवरटाइज़ करें", "ADVERTISE YOUR GAME HERE", lang)}
-          </p>
-          <p className="text-sm text-neutral-800 mt-1">
-            {t("SattaOnlineResult.com पर अपने गेम को फीचर करने के लिए संपर्क करें", "Contact us to feature your game on SattaOnlineResult.com", lang)}
-          </p>
-        </div>
+       
 
         {/* SEO */}
-        <SeoContent />
+        <LiveSattaSeoContent />
       </div>
     </div>
   );
@@ -607,7 +583,7 @@ function ResultSpotlightCard({
   const isRecent = tone === "recent";
   return (
     <div
-      className="rounded-2xl border-2 border-black bg-white/90 p-4 shadow-[4px_4px_0_#171717]"
+      className="rounded-2xl border-2 border-brand-ink bg-white/90 p-4 shadow-[4px_4px_0_var(--brand-ink)]"
     >
       <div className="flex items-center gap-2">
         <span className={`h-2.5 w-2.5 rounded-full ${isRecent ? "bg-emerald-400 animate-live-pulse" : "bg-amber-400"}`} />
@@ -618,9 +594,9 @@ function ResultSpotlightCard({
       {game ? (
         <div className="mt-2 flex items-end justify-between gap-3">
           <div className="min-w-0">
-            <p className="truncate text-base font-black uppercase text-black">{game.name}</p>
+            <p className="truncate text-base font-black uppercase text-slate-900">{game.name}</p>
           </div>
-          <div className={`font-mono text-3xl font-black ${isRecent ? "text-emerald-700" : "text-black"}`}>
+          <div className={`font-mono text-3xl font-black ${isRecent ? "text-emerald-700" : "text-slate-900"}`}>
             {isRecent ? game.today : "XX"}
           </div>
         </div>
@@ -679,42 +655,23 @@ function GameCardSection({
   return (
     <section className="opacity-100">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-4">
-        <div>
-          <h2 className="text-lg md:text-xl font-black text-gray-900 flex items-center gap-2">
-            {title}
-            {isLive && (
-              <span className="w-2 h-2 bg-red-500 rounded-full animate-live-pulse" />
-            )}
-          </h2>
-
-          <p className="text-xs text-gray-500">
-            {subtitle}
-          </p>
-        </div>
-
-        <div
-          className={`ml-auto px-3 py-1 rounded-full text-xs font-bold bg-gray-100 border border-gray-300 ${accentColor}`}
-        >
-          {games.length} Games
-        </div>
-      </div>
+      
 
       {/* Table */}
-      <div className="overflow-x-auto border-2 border-black rounded-xl">
+      <div className="overflow-x-auto border-2 border-brand-ink rounded-xl">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="bg-yellow-200 text-black">
-              <th className="border border-black px-3 py-3 text-left">
+            <tr className="bg-brand-100 text-slate-900">
+              <th className="border border-brand-ink px-3 py-3 text-left">
                 Game
               </th>
 
-              <th className="border border-black px-3 py-2 text-center">
+              <th className="border border-brand-ink px-3 py-2 text-center">
                 <div>Yesterday</div>
                 
               </th>
 
-              <th className="border border-black px-3 py-2 text-center">
+              <th className="border border-brand-ink px-3 py-2 text-center">
                 <div>Today</div>
                
               </th>
@@ -727,47 +684,49 @@ function GameCardSection({
                 .toLowerCase()
                 .replace(/\s+/g, "-");
 
-              const hasResult =
-                game.today &&
-                game.today !== "XX" &&
-                game.today !== "--";
+              const hasResult = isDeclaredResult(game.today);
 
               return (
                 <tr
                   key={game.name + i}
-                  className="bg-gray-100 hover:bg-yellow-50 transition"
+                  className="bg-slate-100 hover:bg-brand-50 transition"
                 >
                   {/* Game Name */}
-                  <td className="border border-black px-1 py-2 bg-yellow-100 text-center">
+                  <td className="border border-brand-ink px-1 py-2 bg-brand-50 text-center">
                     <div className="font-black uppercase text-sm md:text-base leading-none">
                       {game.name}
                     </div>
-                    <div className="text-[10px] text-black leading-none mt-1">{game.time}</div>
+                    <div className="text-[10px] text-slate-900 leading-none mt-1">{game.time}</div>
                     <Link
                       href={`/chart/${slug}`}
-                      className="inline-block text-[10px] font-bold text-yellow-700 hover:text-yellow-900 leading-none mt-0.5"
+                      className="inline-block text-[10px] font-bold text-brand-700 hover:text-brand-900 leading-none mt-0.5"
                     >
                       Chart →
                     </Link>
                   </td>
 
                   {/* Yesterday */}
-                  <td className="border border-black px-3 py-1.5 text-center">
+                  <td className="border border-brand-ink px-3 py-1.5 text-center">
                     <span className="font-mono font-black text-2xl md:text-3xl text-gray-800">
                       {game.yesterday || "XX"}
                     </span>
                   </td>
 
                   {/* Today */}
-                  <td className="border border-black px-3 py-1.5 text-center">
+                  <td className="border border-brand-ink px-3 py-1.5 text-center">
                     {hasResult ? (
                       <span className="font-mono font-black text-2xl md:text-3xl text-green-600">
                         {game.today}
                       </span>
                     ) : isLive ? (
-                      <span className="font-bold text-red-500 text-sm md:text-base">
-                        XX
-                      </span>
+                      <Image
+                        src="/wait.gif"
+                        alt="Waiting for result"
+                        width={150}
+                        height={150}
+                        unoptimized
+                        className="mx-auto h-10 w-10 object-contain md:h-12 md:w-12"
+                      />
                     ) : (
                       <span className="font-mono font-black text-2xl md:text-3xl text-gray-400">
                         XX
@@ -789,7 +748,7 @@ function SK24ChartsSection({ tables, lang }: { tables: SK24ChartTable[]; lang: "
   return (
     <div className="sa opacity-0 translate-y-8 space-y-6">
       <div className="flex items-center gap-2.5 md:gap-3 mb-1">
-        <div className="p-2.5 rounded-xl bg-yellow-200 text-black border border-black shrink-0 shadow-md">
+        <div className="p-2.5 rounded-xl bg-brand-100 text-slate-900 border border-brand-ink shrink-0 shadow-md">
           <FiBarChart2 size={18} />
         </div>
         <div>
@@ -803,13 +762,13 @@ function SK24ChartsSection({ tables, lang }: { tables: SK24ChartTable[]; lang: "
       </div>
       {tables.map((table, idx) => (
         <div key={idx} className="bg-white rounded-2xl border-2 border-gray-300 overflow-hidden shadow-sm">
-          <div className="bg-yellow-200 text-black text-center py-2.5 px-3 text-sm md:text-base font-bold">
+          <div className="bg-brand-100 text-slate-900 text-center py-2.5 px-3 text-sm md:text-base font-bold">
             {table.title}
           </div>
           <div className="overflow-x-auto">
             <table className="w-full table-fixed text-sm md:text-base border-collapse">
               <thead>
-                <tr className="bg-black text-yellow-100 text-xs md:text-sm uppercase">
+                <tr className="bg-brand-ink text-brand-100 text-xs md:text-sm uppercase">
                   {table.headers.map((h, hi) => (
                     <th key={hi} className="py-2 px-1 md:px-3 font-semibold border border-gray-300">
                       {h}
@@ -847,28 +806,28 @@ function SK24ChartsSection({ tables, lang }: { tables: SK24ChartTable[]; lang: "
 
 
 function WhatsAppContactSection({ lang, khaiwal }: any) {
-  const phone = khaiwal?.whatsapp || "918708328760";
-  const name = khaiwal?.name || "Arun bhai Khaiwal";
+  const phone =  "918295877030";
+  const name =  "RINKU BHAI KHAIWAL";
   const whatsappPhone = String(phone).replace(/\D/g, "");
 
   const games = [
-    { name: t("सदर बाजार", "Sadar Bazar", lang), time: "1:20 PM" },
-    { name: t("ग्वालियर", "Gwalior", lang), time: "2:20 PM" },
+    { name: t("सदर बाजार", "Sadar Bazar", lang), time: "1:30 PM" },
+    { name: t("ग्वालियर", "Gwalior", lang), time: "2:30 PM" },
     { name: t("दिल्ली बाजार", "Delhi Bazar", lang), time: "3:00 PM" },
-    { name: t("दिल्ली मटका", "Delhi Matka", lang), time: "3:20 PM" },
+    { name: t("दिल्ली मटका", "Delhi Matka", lang), time: "3:30 PM" },
     { name: t("श्री गणेश", "Shri Ganesh", lang), time: "4:20 PM" },
     { name: t("आगरा", "Agra", lang), time: "5:20 PM" },
-    { name: t("फरीदाबाद", "Faridabad", lang), time: "5:50 PM" },
+    { name: t("फरीदाबाद", "Faridabad", lang), time: "5:55 PM" },
     { name: t("अलवर", "Alwar", lang), time: "7:20 PM" },
-    { name: t("गाज़ियाबाद", "Ghaziabad", lang), time: "8:50 PM" },
-    { name: t("द्वारका", "Dwarka", lang), time: "10:15 PM" },
-    { name: t("गली", "Gali", lang), time: "11:20 PM" },
-    { name: t("दिसावर", "Disawar", lang), time: "2:00 AM" },
+    { name: t("गाज़ियाबाद", "Ghaziabad", lang), time: "9:00 PM" },
+    { name: t("द्वारका", "Dwarka", lang), time: "10:25 PM" },
+    { name: t("गली", "Gali", lang), time: "11:10 PM" },
+    { name: t("दिसावर", "Disawar", lang), time: "1:30 AM" },
   ];
 
   return (
     <section className="sa opacity-0 translate-y-8">
-      <div className="relative overflow-hidden rounded-3xl border-4 border-dashed border-red-500 bg-gradient-to-b from-yellow-300 via-yellow-100 to-white shadow-xl">
+      <div className="relative overflow-hidden rounded-3xl border-4 border-dashed border-red-500 bg-gradient-to-b from-brand-300 via-brand-50 to-white shadow-xl">
 
         {/* Top Header */}
         <div className="text-center px-4 pt-6 pb-3">
@@ -884,7 +843,7 @@ function WhatsAppContactSection({ lang, khaiwal }: any) {
 
         {/* Timing List */}
         <div className="max-w-xl mx-auto px-4 pb-5">
-          <div className="bg-white/60 backdrop-blur rounded-2xl border-2 border-yellow-500 p-4">
+          <div className="bg-white/60 backdrop-blur rounded-2xl border-2 border-brand-500 p-4">
 
             {games.map((game) => (
               <div
@@ -906,20 +865,20 @@ function WhatsAppContactSection({ lang, khaiwal }: any) {
 
         {/* Rates */}
         <div className="grid grid-cols-2 gap-3 px-4 max-w-md mx-auto">
-          <div className="bg-white border-2 border-yellow-500 rounded-2xl p-3 text-center">
+          <div className="bg-white border-2 border-brand-500 rounded-2xl p-3 text-center">
             <p className="text-xs font-bold text-gray-500 uppercase">
               Jodi Rate
             </p>
-            <p className="text-2xl font-black text-yellow-700">
+            <p className="text-2xl font-black text-brand-700">
               10-960
             </p>
           </div>
 
-          <div className="bg-white border-2 border-yellow-500 rounded-2xl p-3 text-center">
+          <div className="bg-white border-2 border-brand-500 rounded-2xl p-3 text-center">
             <p className="text-xs font-bold text-gray-500 uppercase">
               Haruf Rate
             </p>
-            <p className="text-2xl font-black text-yellow-700">
+            <p className="text-2xl font-black text-brand-700">
               100-960
             </p>
           </div>
@@ -940,7 +899,7 @@ function WhatsAppContactSection({ lang, khaiwal }: any) {
         <div className="text-center px-4">
           <a
             href={`tel:+${whatsappPhone}`}
-            className="inline-block text-3xl md:text-4xl font-black text-yellow-700 border-b-4 border-yellow-500"
+            className="inline-block text-3xl md:text-4xl font-black text-brand-700 border-b-4 border-brand-500"
           >
             +{phone}
           </a>
@@ -1053,7 +1012,7 @@ function MonthlyChartSection({
     : `${displayMonth} ${selectedYear} Monthly Chart`;
 
   return (
-    <section className="sa opacity-0 translate-y-8">
+    <section id="monthly-records" className="sa scroll-mt-24 opacity-0 translate-y-8">
       <div className="flex items-center gap-2.5 md:gap-3 mb-4">
         <div>
           <h2 className="text-lg md:text-xl font-black text-gray-900">
@@ -1066,11 +1025,11 @@ function MonthlyChartSection({
       {/* Filter Dropdowns */}
       <div className="flex items-center gap-2 mb-4">
         <div className="relative">
-          <FiCalendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-500 pointer-events-none" />
+          <FiCalendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-600 pointer-events-none" />
           <select
             value={selectedMonth}
             onChange={(e) => handleMonthChange(e.target.value)}
-            className="bg-gray-50 border border-gray-300 rounded-xl pl-8 pr-7 py-2 text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 appearance-none cursor-pointer"
+            className="bg-gray-50 border border-gray-300 rounded-xl pl-8 pr-7 py-2 text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-brand-400 appearance-none cursor-pointer"
           >
             {MONTHS.map((m) => (
               <option key={m} value={m}>{m}</option>
@@ -1079,11 +1038,11 @@ function MonthlyChartSection({
           <FiChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
         </div>
         <div className="relative">
-          <FiBarChart2 size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-500 pointer-events-none" />
+          <FiBarChart2 size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-600 pointer-events-none" />
           <select
             value={selectedYear}
             onChange={(e) => handleYearChange(e.target.value)}
-            className="bg-gray-50 border border-gray-300 rounded-xl pl-8 pr-7 py-2 text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 appearance-none cursor-pointer"
+            className="bg-gray-50 border border-gray-300 rounded-xl pl-8 pr-7 py-2 text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-brand-400 appearance-none cursor-pointer"
           >
             {years.map((y) => (
               <option key={y} value={y}>{y}</option>
@@ -1092,30 +1051,30 @@ function MonthlyChartSection({
           <FiChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
         </div>
         {chartLoading && (
-          <div className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-brand-400 border-t-transparent rounded-full animate-spin" />
         )}
       </div>
 
       {/* Chart Table */}
       {chartLoading ? (
         <div className="bg-white rounded-2xl border-2 border-gray-300 overflow-hidden shadow-sm">
-          <div className="bg-yellow-200 text-black text-center py-2.5 px-3 text-sm md:text-base font-bold">
+          <div className="bg-brand-100 text-slate-900 text-center py-2.5 px-3 text-sm md:text-base font-bold">
             {title}
           </div>
           <div className="p-8 text-center">
-            <div className="w-8 h-8 border-3 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <div className="w-8 h-8 border-3 border-brand-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
             <p className="text-gray-400 text-sm">{t("लोड हो रहा है...", "Loading...", lang)}</p>
           </div>
         </div>
       ) : rows.length > 0 ? (
         <div className="bg-white rounded-2xl border-2 border-gray-300 overflow-hidden shadow-sm">
-          <div className="bg-yellow-200 text-black text-center py-2.5 px-3 text-sm md:text-base font-bold">
+          <div className="bg-brand-100 text-slate-900 text-center py-2.5 px-3 text-sm md:text-base font-bold">
             {title}
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm md:text-base border-collapse">
               <thead>
-                <tr className="bg-black text-yellow-100 text-[10px] md:text-xs uppercase">
+                <tr className="bg-brand-ink text-brand-100 text-[10px] md:text-xs uppercase">
                   <th className="py-2 px-1.5 md:px-3 font-semibold border border-gray-300">
                     {t("तारीख", "Date", lang)}
                   </th>
@@ -1159,6 +1118,121 @@ function MonthlyChartSection({
 
 // ─── SEO Content ───
 
+const MARKET_SCHEDULES = [
+  { market: "Desawar", time: "Early Morning (05:00 AM)", href: "/desawar-result/", link: "Check Desawar Live Result" },
+  { market: "Delhi Bazar", time: "Mid-Afternoon (03:10 PM)", href: "/delhi-bazar/", link: "Check Delhi Bazar Status" },
+  { market: "Shree Ganesh", time: "Afternoon (04:30 PM)", href: "/shree-ganesh/", link: "Check Shree Ganesh Status" },
+  { market: "Faridabad", time: "Early Evening (06:00 PM)", href: "/faridabad-result/", link: "Check Faridabad Result" },
+  { market: "Ghaziabad", time: "Late Evening (08:45 PM)", href: "/ghaziabad-result/", link: "Check Ghaziabad Result" },
+  { market: "Gali", time: "Late Night (11:30 PM)", href: "/gali-result/", link: "Check Gali Live Result" },
+];
+
+function LiveSattaSeoContent() {
+  const year = format(new Date(), "yyyy");
+
+  return (
+    <article className="sa opacity-0 translate-y-8 space-y-8 rounded-2xl border border-gray-200 bg-white p-5 text-sm leading-relaxed text-gray-700 md:p-8">
+      <section className="space-y-3">
+        <h2 className="text-xl font-black text-gray-900 md:text-2xl">About Today&apos;s Live Satta King Updates</h2>
+        <p>
+          Welcome to <strong>Live-SattaKing.com</strong>, an independent digital directory created to provide organized, real-time public updates for daily Satta King markets. We aggregate numerical data declared in the public domain and present it in a readable, structured format.
+        </p>
+        <p>
+          This portal operates strictly as an informational and historical data archive. We do not operate wagering services, promote cash games, accept deposits, or offer predictive number schemes.
+        </p>
+      </section>
+
+      <section className="space-y-4" aria-labelledby="market-schedule-heading">
+        <h2 id="market-schedule-heading" className="text-xl font-black text-gray-900 md:text-2xl">
+          Primary Market Schedules &amp; Daily Release Information
+        </h2>
+        <p>
+          Each regional market follows an independent schedule. When a scheduled time passes but no verified number has been published, the live dashboard shows a waiting indicator instead of presenting an unverified result.
+        </p>
+        <div className="overflow-x-auto rounded-xl border border-brand-200">
+          <table className="w-full min-w-[680px] border-collapse text-left">
+            <thead className="bg-brand-ink text-brand-50">
+              <tr>
+                <th className="px-4 py-3">Market Name</th>
+                <th className="px-4 py-3">Typical Announcement Window</th>
+                <th className="px-4 py-3">Current Status / Latest Public Entry</th>
+              </tr>
+            </thead>
+            <tbody>
+              {MARKET_SCHEDULES.map((item, index) => (
+                <tr key={item.market} className={index % 2 ? "bg-brand-50" : "bg-white"}>
+                  <td className="border-t border-brand-100 px-4 py-3 font-bold text-gray-900">{item.market}</td>
+                  <td className="border-t border-brand-100 px-4 py-3">{item.time}</td>
+                  <td className="border-t border-brand-100 px-4 py-3">
+                    <Link href={item.href} className="font-bold text-brand-700 hover:underline">{item.link}</Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-xl bg-brand-50 p-4">
+            <h3 className="font-black text-gray-900">Gali Live Result &amp; Nightly Status</h3>
+            <p className="mt-1">The Gali live result is generally the closing update of the daily cycle. Once publicly declared, it is added to the historical record.</p>
+          </div>
+          <div className="rounded-xl bg-brand-50 p-4">
+            <h3 className="font-black text-gray-900">Desawar Live Result &amp; Morning Tracking</h3>
+            <p className="mt-1">The Desawar today result is normally an early-morning update and begins the day&apos;s primary market record.</p>
+          </div>
+          <div className="rounded-xl bg-brand-50 p-4">
+            <h3 className="font-black text-gray-900">Faridabad &amp; Ghaziabad Timelines</h3>
+            <p className="mt-1">Faridabad usually begins the evening cycle, followed later by the Ghaziabad public result. Actual release times may vary.</p>
+          </div>
+          <div className="rounded-xl bg-brand-50 p-4">
+            <h3 className="font-black text-gray-900">Delhi Bazar &amp; Shree Ganesh Overview</h3>
+            <p className="mt-1">These daytime markets provide afternoon updates before the evening result cycle begins.</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-xl font-black text-gray-900 md:text-2xl">Satta King Chart Live &amp; Historical Archives ({year})</h2>
+        <p>Daily public outcomes are organized into monthly grids so visitors can review previous Satta results without searching through separate updates.</p>
+        <ul className="list-disc space-y-2 pl-5">
+          <li><Link href="/satta-king-chart/" className="font-bold text-brand-700 hover:underline">Satta King Record Chart {year}</Link>: review the current calendar-year records across primary markets.</li>
+          <li><Link href="/monthly-records/" className="font-bold text-brand-700 hover:underline">Monthly Record Archive</Link>: browse the homepage&apos;s month-by-month historical result table.</li>
+        </ul>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-xl font-black text-gray-900 md:text-2xl">How to Navigate Live-SattaKing.com</h2>
+        <ol className="list-decimal space-y-2 pl-5">
+          <li>Check the live dashboard near the top of the homepage for the latest available entries.</li>
+          <li>Select an individual market link to open its result chart and timeline.</li>
+          <li>Use the monthly chart controls to explore previous records by month and year.</li>
+          <li>Bookmark the homepage for quick access to future public updates.</li>
+        </ol>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-xl font-black text-gray-900 md:text-2xl">Frequently Asked Questions</h2>
+        <div className="space-y-4">
+          <div><h3 className="font-black text-gray-900">What is Live Satta King?</h3><p>Live Satta King refers to real-time reporting of numerical outcomes published by independent local market organizers. This site organizes publicly available figures for informational tracking.</p></div>
+          <div><h3 className="font-black text-gray-900">When are Gali and Desawar updates announced?</h3><p>Desawar is typically published around 05:00 AM IST, while Gali is generally declared around 11:30 PM IST. Independent publication schedules may vary.</p></div>
+          <div><h3 className="font-black text-gray-900">How do I check past records on the live chart?</h3><p>Select the Chart link beside a market or use the monthly chart above to review preserved daily results.</p></div>
+          <div><h3 className="font-black text-gray-900">What does an awaiting or pending status mean?</h3><p>It means a verified figure has not yet been made publicly available. The display updates automatically after a result is released.</p></div>
+        </div>
+      </section>
+
+      <section className="space-y-3 rounded-xl border border-amber-300 bg-amber-50 p-5">
+        <h2 className="text-xl font-black text-gray-900 md:text-2xl">Transparency &amp; Informational Notice</h2>
+        <ul className="list-disc space-y-2 pl-5">
+          <li><strong>Strictly informational:</strong> We do not conduct gambling operations, accept financial deposits, or act as a wagering intermediary.</li>
+          <li><strong>No predictive claims:</strong> We do not provide leak numbers, fixed results, guaranteed tips, or outcome predictions.</li>
+          <li><strong>Legal compliance:</strong> Visitors are responsible for understanding and following applicable local, state, and national laws.</li>
+        </ul>
+      </section>
+    </article>
+  );
+}
+
 function SeoContent() {
   return (
     <div className="sa opacity-0 translate-y-8 bg-gray-50 rounded-2xl border border-gray-200 p-5 md:p-8 space-y-4 text-sm text-gray-600 leading-relaxed">
@@ -1169,7 +1243,7 @@ function SeoContent() {
       <h3 className="text-lg font-bold text-gray-900">Welcome</h3>
 
       <p>
-        Welcome to SattaOnlineResult.com, your trusted destination for the latest
+        Welcome to Live-SattaKing.com, your trusted destination for the latest
         Satta King Result, Satta Online Result, Gali Result, Desawar Result,
         Faridabad Result, and Ghaziabad Result updates. Our website is designed
         to provide fast, accurate, and easy-to-read result information along with
@@ -1179,17 +1253,17 @@ function SeoContent() {
       <p>
         If you're searching for today's Satta King Result, Satta Chart, Satta
         Record, Disawar Result Today, or old result history,
-        SattaOnlineResult.com offers a clean and organized experience. Every
+        Live-SattaKing.com offers a clean and organized experience. Every
         section is updated regularly so visitors can quickly access the latest
         available information without unnecessary distractions.
       </p>
 
       <h3 className="text-lg font-bold text-gray-900">
-        Why Choose SattaOnlineResult.com?
+        Why Choose Live-SattaKing.com?
       </h3>
 
       <p>
-        At SattaOnlineResult.com, we focus on providing reliable result
+        At Live-SattaKing.com, we focus on providing reliable result
         information in a simple format. Visitors can easily check the latest
         Satta King Result, browse previous records, and explore historical charts
         without confusion.
@@ -1239,7 +1313,7 @@ function SeoContent() {
       </h3>
 
       <p>
-        SattaOnlineResult.com provides organized updates for several well-known
+        Live-SattaKing.com provides organized updates for several well-known
         markets that users frequently search online. Popular result sections are
         displayed clearly, making navigation simple and convenient.
       </p>
@@ -1278,7 +1352,7 @@ function SeoContent() {
       </p>
 
       <p>
-        SattaOnlineResult.com values transparency, accuracy, and simplicity. By
+        Live-SattaKing.com values transparency, accuracy, and simplicity. By
         keeping information well-structured and regularly updated, we aim to
         become a trusted destination for users looking for Satta Online Result
         information.
@@ -1291,10 +1365,10 @@ function SeoContent() {
       <div className="space-y-3">
         <div>
           <h4 className="font-bold text-gray-900">
-            What is SattaOnlineResult.com?
+            What is Live-SattaKing.com?
           </h4>
           <p>
-            SattaOnlineResult.com is an informational website that provides the
+            Live-SattaKing.com is an informational website that provides the
             latest Satta King Results, charts, old records, and historical result
             information in an organized format.
           </p>
@@ -1333,7 +1407,7 @@ function SeoContent() {
 
         <div>
           <h4 className="font-bold text-gray-900">
-            Is SattaOnlineResult.com a trusted source?
+            Is Live-SattaKing.com a trusted source?
           </h4>
           <p>
             Our focus is on presenting organized, easy-to-read, and regularly
@@ -1346,7 +1420,7 @@ function SeoContent() {
       <h3 className="text-lg font-bold text-gray-900">Disclaimer</h3>
 
       <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-xs text-red-700">
-        <strong>Important:</strong> SattaOnlineResult.com is an informational
+        <strong>Important:</strong> Live-SattaKing.com is an informational
         website only. We do not organize, operate, promote, or encourage
         betting, gambling, or wagering activities. The information is published
         solely for informational purposes. Users are responsible for complying

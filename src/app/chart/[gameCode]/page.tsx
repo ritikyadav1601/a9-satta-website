@@ -219,7 +219,7 @@ export default function GameChartPage({
         <div className="text-center mt-8">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-yellow-700 hover:text-yellow-900 text-sm font-bold transition-colors"
+            className="inline-flex items-center gap-1.5 text-brand-700 hover:text-brand-900 text-sm font-bold transition-colors"
           >
             <FiChevronLeft size={16} />
             Back to All Results

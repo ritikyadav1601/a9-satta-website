@@ -15,7 +15,7 @@ export default function ContactPage() {
           {t("संपर्क करें", "Contact Us", lang)}
         </h1>
         <p className="text-gray-500 text-sm mb-8">
-          {t("SattaOnlineResult.com टीम से संपर्क करें", "Get in touch with SattaOnlineResult.com team", lang)}
+          {t("Live-SattaKing.com टीम से संपर्क करें", "Get in touch with Live-SattaKing.com team", lang)}
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -41,9 +41,9 @@ export default function ContactPage() {
           {/* Phone Card */}
           <a
             href={`tel:+${phone}`}
-            className="bg-yellow-50 rounded-2xl border border-yellow-200 p-5 flex items-start gap-4 hover:shadow-lg hover:border-yellow-400 transition-all group"
+            className="bg-brand-50 rounded-2xl border border-brand-200 p-5 flex items-start gap-4 hover:shadow-lg hover:border-brand-400 transition-all group"
           >
-            <div className="p-3 rounded-xl bg-yellow-200 text-black shrink-0 group-hover:scale-110 transition-transform">
+            <div className="p-3 rounded-xl bg-brand-100 text-slate-900 shrink-0 group-hover:scale-110 transition-transform">
               <FiPhone size={24} />
             </div>
             <div>
@@ -51,18 +51,18 @@ export default function ContactPage() {
               <p className="text-gray-500 text-sm mt-0.5">
                 {t("सीधे कॉल करें", "Call us directly", lang)}
               </p>
-              <p className="text-yellow-700 font-bold text-sm mt-2">+{phone}</p>
+              <p className="text-brand-700 font-bold text-sm mt-2">+{phone}</p>
             </div>
           </a>
 
         </div>
 
         {/* WhatsApp CTA */}
-        <div className="bg-neutral-950 border-2 border-yellow-400 rounded-2xl p-6 md:p-8 text-center">
+        <div className="bg-brand-ink border-2 border-brand-400 rounded-2xl p-6 md:p-8 text-center">
           <p className="text-white font-bold text-lg mb-1">
             {t("गेम खेलने के लिए संपर्क करें", "Game play karne ke liye contact kare", lang)}
           </p>
-          <p className="text-amber-400 font-black text-2xl mb-4">A7 SATTA</p>
+          <p className="text-brand-400 font-black text-2xl mb-4">A7 SATTA</p>
           <a
             href={`https://wa.me/${phone}?text=${encodeURIComponent("A7 SATTA")}`}
             target="_blank"
@@ -83,8 +83,8 @@ export default function ContactPage() {
         <div className="mt-8 bg-red-50 border border-red-200 rounded-xl p-4 text-xs text-red-700">
           <strong>{t("अस्वीकरण:", "Disclaimer:", lang)}</strong>{" "}
           {t(
-            "SattaOnlineResult.com केवल एक सूचनात्मक वेबसाइट है। हम किसी भी प्रकार के जुए को बढ़ावा नहीं देते। कृपया अपने स्थानीय कानूनों का पालन करें।",
-            "SattaOnlineResult.com is an informational website only. We do not promote or facilitate gambling in any form. Please follow your local laws.",
+            "Live-SattaKing.com केवल एक सूचनात्मक वेबसाइट है। हम किसी भी प्रकार के जुए को बढ़ावा नहीं देते। कृपया अपने स्थानीय कानूनों का पालन करें।",
+            "Live-SattaKing.com is an informational website only. We do not promote or facilitate gambling in any form. Please follow your local laws.",
             lang
           )}
         </div>

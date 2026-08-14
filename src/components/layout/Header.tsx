@@ -24,23 +24,23 @@ export function Header() {
   }
 
   return (
-    <header className="bg-black text-white shadow-lg border-b-2 border-black">
+    <header className="bg-brand-ink text-white shadow-lg border-b-2 border-brand-ink">
       <div className="max-w-7xl mx-auto px-0 md:px-4">
         <div className="flex flex-col md:h-20 md:flex-row md:items-center md:justify-between">
-          <Link
+          {/* <Link
             href="/"
             className="block w-full md:w-auto"
-            aria-label="Satta Online Result home"
+            aria-label="Live Satta King home"
           >
             <Image
               src="/logo-header.png"
-              alt="Satta Online Result"
+              alt="Live Satta King website official brand logo"
               width={1942}
               height={809}
               priority
               className="h-28 w-full object-cover md:h-20 md:w-[430px]"
             />
-          </Link>
+          </Link> */}
 
           {/* Desktop navigation */}
           <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
@@ -52,7 +52,7 @@ export function Header() {
                   href={link.href}
                   className={`px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-xs md:text-sm font-semibold transition-all ${
                     active
-                      ? "bg-yellow-200 text-black shadow-md"
+                      ? "bg-brand-100 text-slate-900 shadow-md"
                       : "text-white hover:bg-white/10"
                   }`}
                 >
@@ -64,12 +64,12 @@ export function Header() {
 
         </div>
 
-        <div className="flex h-11 items-center justify-between border-t border-yellow-200/40 bg-black px-3 text-white md:hidden">
+        <div className="flex h-11 items-center justify-between border-t border-brand-200/40 bg-brand-ink px-3 text-white md:hidden">
           <span className="text-xs font-black uppercase tracking-[0.2em]">Menu</span>
           <button
             type="button"
             onClick={() => setIsMenuOpen((open) => !open)}
-            className="inline-flex h-9 w-11 items-center justify-center rounded-lg border border-yellow-200/60 bg-black text-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-200"
+            className="inline-flex h-9 w-11 items-center justify-center rounded-lg border border-brand-200/60 bg-brand-ink text-brand-100 focus:outline-none focus:ring-2 focus:ring-brand-200"
             aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
             aria-expanded={isMenuOpen}
             aria-controls="mobile-navigation"
@@ -101,7 +101,7 @@ export function Header() {
                   onClick={() => setIsMenuOpen(false)}
                   className={`block rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors ${
                     active
-                      ? "bg-yellow-200 text-black"
+                      ? "bg-brand-100 text-slate-900"
                       : "text-white hover:bg-white/10"
                   }`}
                 >
@@ -114,11 +114,11 @@ export function Header() {
       </div>
 
       {/* Yellow marquee bar */}
-      <div className="bg-black text-yellow-100 py-1 overflow-hidden w-full">
+      <div className="bg-brand-ink text-brand-100 py-1 overflow-hidden w-full">
         <div className="animate-marquee whitespace-nowrap text-[10px] md:text-xs font-bold">
           {lang === "hi"
-            ? "SattaOnlineResult.com में आपका स्वागत है — सुपरफास्ट लाइव A7 सट्टा रिजल्ट • गली, देसावर, गाज़ियाबाद, फरीदाबाद, श्री गणेश, दिल्ली बाजार • 100+ गेम्स • फ्री मंथली चार्ट रिकॉर्ड 2015-2026 • हर मिनट अपडेट"
-            : "Welcome to SattaOnlineResult.com — Superfast Live A7 Satta Results • Gali, Desawar, Ghaziabad, Faridabad, Shri Ganesh, Delhi Bazar • 100+ Games • Free Monthly Chart Records 2015-2026 • Updated Every Minute"}
+            ? "Live-SattaKing.com में आपका स्वागत है — सुपरफास्ट लाइव A7 सट्टा रिजल्ट • गली, देसावर, गाज़ियाबाद, फरीदाबाद, श्री गणेश, दिल्ली बाजार • 100+ गेम्स • फ्री मंथली चार्ट रिकॉर्ड 2015-2026 • हर मिनट अपडेट"
+            : "Welcome to Live-SattaKing.com — Superfast Live A7 Satta Results • Gali, Desawar, Ghaziabad, Faridabad, Shri Ganesh, Delhi Bazar • 100+ Games • Free Monthly Chart Records 2015-2026 • Updated Every Minute"}
         </div>
       </div>
     </header>

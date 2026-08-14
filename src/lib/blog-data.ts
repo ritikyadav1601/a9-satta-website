@@ -1,4 +1,4 @@
-// Blog content for SattaOnlineResult.com
+// Blog content for Live-SattaKing.com
 // Each post is rendered on /blog (list) and /blog/[slug] (detail).
 
 export type Block =
@@ -190,7 +190,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        text: "SattaOnlineResult.com का उद्देश्य उपयोगकर्ताओं को परिणाम, चार्ट और संबंधित जानकारी एक ही स्थान पर उपलब्ध कराना है ताकि उन्हें अलग-अलग स्रोतों पर जाने की आवश्यकता न पड़े।",
+        text: "Live-SattaKing.com का उद्देश्य उपयोगकर्ताओं को परिणाम, चार्ट और संबंधित जानकारी एक ही स्थान पर उपलब्ध कराना है ताकि उन्हें अलग-अलग स्रोतों पर जाने की आवश्यकता न पड़े।",
       },
 
       { type: "h2", text: "Satta King Chart का महत्व" },
@@ -304,10 +304,10 @@ export const BLOG_POSTS: BlogPost[] = [
         text: "डेटा प्रस्तुति का तरीका वेबसाइट के अनुसार अलग हो सकता है।",
       },
 
-      { type: "h2", text: "SattaOnlineResult.com की विशेषताएं" },
+      { type: "h2", text: "Live-SattaKing.com की विशेषताएं" },
       {
         type: "p",
-        text: "SattaOnlineResult.com उपयोगकर्ताओं को परिणाम, चार्ट और ऐतिहासिक रिकॉर्ड की जानकारी उपलब्ध कराने का प्रयास करता है।",
+        text: "Live-SattaKing.com उपयोगकर्ताओं को परिणाम, चार्ट और ऐतिहासिक रिकॉर्ड की जानकारी उपलब्ध कराने का प्रयास करता है।",
       },
       { type: "p", text: "वेबसाइट की प्रमुख विशेषताएं:" },
       {
@@ -325,7 +325,7 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: "h2", text: "निष्कर्ष" },
       {
         type: "p",
-        text: "Satta King Result और Chart संबंधी जानकारी खोजने वाले उपयोगकर्ताओं के लिए व्यवस्थित डेटा, तेज अपडेट और आसान नेविगेशन महत्वपूर्ण हैं। SattaOnlineResult.com का उद्देश्य उपयोगकर्ताओं को सरल और व्यवस्थित तरीके से आवश्यक जानकारी उपलब्ध कराना है ताकि वे आसानी से परिणाम और पुराने रिकॉर्ड देख सकें।",
+        text: "Satta King Result और Chart संबंधी जानकारी खोजने वाले उपयोगकर्ताओं के लिए व्यवस्थित डेटा, तेज अपडेट और आसान नेविगेशन महत्वपूर्ण हैं। Live-SattaKing.com का उद्देश्य उपयोगकर्ताओं को सरल और व्यवस्थित तरीके से आवश्यक जानकारी उपलब्ध कराना है ताकि वे आसानी से परिणाम और पुराने रिकॉर्ड देख सकें।",
       },
     ],
   },
