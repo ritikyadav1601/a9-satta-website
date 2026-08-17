@@ -11,36 +11,6 @@ const nextConfig: NextConfig = {
       { source: "/gali-result", destination: "/chart/gali", permanent: true },
       { source: "/satta-king-chart", destination: "/#monthly-records", permanent: true },
       { source: "/monthly-records", destination: "/#monthly-records", permanent: true },
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "a7satta.co" }],
-        destination: "https://live-sattaking.com/:path*",
-        permanent: true,
-      },
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "www.a7satta.co" }],
-        destination: "https://live-sattaking.com/:path*",
-        permanent: true,
-      },
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "www.live-sattaking.com" }],
-        destination: "https://live-sattaking.com/:path*",
-        permanent: true,
-      },
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "sattaonlineresult.com" }],
-        destination: "https://live-sattaking.com/:path*",
-        permanent: true,
-      },
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "www.sattaonlineresult.com" }],
-        destination: "https://live-sattaking.com/:path*",
-        permanent: true,
-      },
     ];
   },
 };
