@@ -2,17 +2,12 @@ import { NextRequest } from "next/server";
 import { getAdminDb } from "@/lib/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
 import { getKhaiwalSettings, saveKhaiwalSettings } from "@/lib/khaiwal-mongodb";
+import { verifyKhaiwalAdmin } from "@/lib/khaiwal-admin";
 
 const COLLECTION = "custom_games";
-const ADMIN_EMAIL = "kapil123@gmail.com";
-const ADMIN_PASSWORD = "Kapil@1997";
 
 // Known custom game keys (used to flatten the per-date map into a result list)
 const GAME_KEYS = ["kohlapur", "manipur", "up-bazar", "palwal-city", "mathura-city"];
-
-function isAuthed(email?: string, password?: string) {
-  return email === ADMIN_EMAIL && password === ADMIN_PASSWORD;
-}
 
 // GET
 //   ?date=YYYY-MM-DD            -> { games: { kohlapur: "45", ... } }  (used by homepage)
@@ -131,13 +126,14 @@ const {
   email,
   password,
   games,
+  siteName,
   khaiwalName,
   whatsapp,
   khaiwal,
   date,
 } = body;
 
-if (!isAuthed(email, password)) {
+if (!(await verifyKhaiwalAdmin(email, password))) {
   return Response.json(
     { success: false, error: "Invalid credentials" },
     { status: 401 }
@@ -154,11 +150,12 @@ const existingMongoKhaiwal = await getKhaiwalSettings().catch(() => null);
 // ✅ Khaiwal can be saved on its own (name/whatsapp) or together with games.
 // Accept a partial update — keep any field the admin didn't send.
 const hasKhaiwalInput =
-  khaiwal != null || khaiwalName != null || whatsapp != null;
+  khaiwal != null || siteName != null || khaiwalName != null || whatsapp != null;
 
 const finalKhaiwal = !hasKhaiwalInput
   ? existingMongoKhaiwal || existingData.khaiwal || null
   : khaiwal || {
+      siteName: siteName ?? existingMongoKhaiwal?.siteName ?? "",
       name: khaiwalName ?? existingMongoKhaiwal?.name ?? existingData.khaiwal?.name ?? "",
       whatsapp: whatsapp ?? existingMongoKhaiwal?.whatsapp ?? existingData.khaiwal?.whatsapp ?? "",
     };
@@ -194,7 +191,7 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json();
     const { email, password, date, game, value } = body;
 
-    if (!isAuthed(email, password)) {
+    if (!(await verifyKhaiwalAdmin(email, password))) {
       return Response.json({ success: false, error: "Invalid credentials" }, { status: 401 });
     }
     if (!date || !game) {
@@ -221,7 +218,7 @@ export async function DELETE(req: NextRequest) {
     const body = await req.json();
     const { email, password, date, game } = body;
 
-    if (!isAuthed(email, password)) {
+    if (!(await verifyKhaiwalAdmin(email, password))) {
       return Response.json({ success: false, error: "Invalid credentials" }, { status: 401 });
     }
     if (!date || !game) {

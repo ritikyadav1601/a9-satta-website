@@ -8,6 +8,7 @@ import { FiClock, FiTrendingUp, FiZap, FiBarChart2, FiCalendar, FiChevronDown } 
 import { FaWhatsapp } from "react-icons/fa";
 import { useLanguage, t } from "@/context/LanguageContext";
 import type { HomeData } from "@/lib/home-data";
+import { getWhatsAppLink, normalizeWhatsAppNumber } from "@/lib/utils";
 
 // ─── Types ───
 
@@ -806,9 +807,9 @@ function SK24ChartsSection({ tables, lang }: { tables: SK24ChartTable[]; lang: "
 
 
 function WhatsAppContactSection({ lang, khaiwal }: any) {
-  const phone =  "918295877030";
-  const name =  "RINKU BHAI KHAIWAL";
-  const whatsappPhone = String(phone).replace(/\D/g, "");
+  const phone = String(khaiwal?.whatsapp || "918295877030");
+  const name = String(khaiwal?.name || "KHAIWAL");
+  const whatsappPhone = normalizeWhatsAppNumber(phone);
 
   const games = [
     { name: t("सदर बाजार", "Sadar Bazar", lang), time: "1:30 PM" },
@@ -901,7 +902,7 @@ function WhatsAppContactSection({ lang, khaiwal }: any) {
             href={`tel:+${whatsappPhone}`}
             className="inline-block text-3xl md:text-4xl font-black text-brand-700 border-b-4 border-brand-500"
           >
-            +{phone}
+            +{whatsappPhone}
           </a>
         </div>
 
@@ -919,7 +920,7 @@ function WhatsAppContactSection({ lang, khaiwal }: any) {
         {/* WhatsApp Button */}
         <div className="px-4 pb-8 pt-5 flex justify-center">
           <a
-            href={`https://wa.me/${whatsappPhone}?text=${encodeURIComponent("A7 SATTA")}`}
+            href={getWhatsAppLink(phone, "A7 SATTA")}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-4 bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-full font-black text-lg shadow-lg hover:scale-105 transition-all"

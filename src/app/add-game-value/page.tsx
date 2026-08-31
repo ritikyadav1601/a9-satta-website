@@ -503,48 +503,12 @@
 
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-
-const CUSTOM_GAMES = [
-  { key: "kohlapur", label: "कोहलापुर (Kohlapur)", time: "1:30 PM" },
-  { key: "manipur", label: "मणिपुर (Manipur)", time: "2:30 PM" },
-  { key: "up-bazar", label: "UP बाज़ार (UP Bazar)", time: "3:30 PM" },
-  { key: "palwal-city", label: "पलवल City (Palwal City)", time: "4:30 PM" },
-  { key: "mathura-city", label: "मथूरा City (Mathura City)", time: "6:50 PM" },
-];
-
-const ADMIN_EMAIL = "kapil123@gmail.com";
-const ADMIN_PASSWORD = "Kapil@1997";
-
-function gameMeta(key: string) {
-  return CUSTOM_GAMES.find((g) => g.key === key);
-}
-
-type Entry = {
-  date: string;
-  game: string;
-  value: string;
-  khaiwalName?: string;
-  whatsapp?: string;
-};
+import { useState, useEffect, useCallback } from "react";
 
 export default function AddGameValuePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  // Default to today's IST date (same key the homepage reads).
-  const [date, setDate] = useState(() =>
-    new Intl.DateTimeFormat("en-CA", {
-      timeZone: "Asia/Kolkata",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).format(new Date())
-  );
-
-  const [values, setValues] = useState<Record<string, string>>({});
-  const [savedValues, setSavedValues] = useState<Record<string, string>>({});
 
   // ✅ NEW FIELDS (KHAIWAL)
   const [khaiwalName, setKhaiwalName] = useState("");
@@ -555,27 +519,16 @@ export default function AddGameValuePage() {
   } | null>(null);
   const [savingKhaiwal, setSavingKhaiwal] = useState(false);
 
-  const [entries, setEntries] = useState<Entry[]>([]);
-
   const fetchValues = useCallback(async () => {
     try {
-      const res = await fetch(`/api/custom-games?date=${date}`);
+      const res = await fetch("/api/custom-games");
       const data = await res.json();
 
       if (data.success) {
-        setValues(data.games || {});
         setKhaiwalName(data.khaiwal?.name || "");
         setWhatsapp(data.khaiwal?.whatsapp || "");
         setSavedKhaiwal(data.khaiwal || null);
       }
-    } catch {}
-  }, [date]);
-
-  const fetchEntries = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/custom-games?list=1&all=1`);
-      const data = await res.json();
-      if (data.success) setEntries(data.entries || []);
     } catch {}
   }, []);
 
@@ -583,50 +536,18 @@ export default function AddGameValuePage() {
     if (isLoggedIn) fetchValues();
   }, [isLoggedIn, fetchValues]);
 
-  useEffect(() => {
-    if (isLoggedIn) fetchEntries();
-  }, [isLoggedIn, fetchEntries]);
-
-  const handleLogin = () => {
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      setIsLoggedIn(true);
-    } else {
-      alert("Invalid login");
-    }
-  };
-
-  const handleSave = async () => {
-    const games: Record<string, string> = {};
-
-    CUSTOM_GAMES.forEach((g) => {
-      if (values[g.key]) games[g.key] = values[g.key];
-    });
-
+  const handleLogin = async () => {
     try {
-      const res = await fetch("/api/custom-games", {
+      const res = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          password,
-          date,
-          games,
-
-          // ✅ NEW FIELDS
-          khaiwalName,
-          whatsapp,
-        }),
+        body: JSON.stringify({ email, password }),
       });
-
       const data = await res.json();
-      if (data.success) {
-        alert("Saved Successfully!");
-        fetchEntries();
-      } else {
-        alert("Error saving");
-      }
+      if (data.success) setIsLoggedIn(true);
+      else alert("Invalid login");
     } catch {
-      alert("Network error");
+      alert("Unable to connect to admin login");
     }
   };
 
@@ -645,7 +566,6 @@ export default function AddGameValuePage() {
         body: JSON.stringify({
           email,
           password,
-          date,
           khaiwalName: khaiwalName.trim(),
           whatsapp: whatsapp.trim(),
         }),
@@ -670,7 +590,7 @@ export default function AddGameValuePage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="bg-white p-6 rounded-2xl shadow w-80">
           <input
-            placeholder="Email"
+            placeholder="Admin ID"
             className="border p-2 w-full mb-3"
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -694,17 +614,6 @@ export default function AddGameValuePage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow p-6">
-
-        {/* ===== DATE ===== */}
-        <div className="mb-5">
-          <label className="font-bold">Date</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="border p-2 w-full rounded-xl mt-2"
-          />
-        </div>
 
         {/* ===== KHAIWAL SECTION (SAME DESIGN THEME) ===== */}
         <div className="mb-6 border border-gray-200 rounded-2xl p-5 bg-gray-50">
@@ -744,48 +653,6 @@ export default function AddGameValuePage() {
           )}
         </div>
 
-        {/* ===== GAME INPUTS ===== */}
-        {CUSTOM_GAMES.map((g) => (
-          <div key={g.key} className="mb-3">
-            <label className="font-semibold">{g.label}</label>
-            <input
-              value={values[g.key] || ""}
-              onChange={(e) =>
-                setValues({ ...values, [g.key]: e.target.value })
-              }
-              className="border p-2 w-full rounded-xl mt-1"
-            />
-          </div>
-        ))}
-
-        {/* SAVE BUTTON */}
-        <button
-          onClick={handleSave}
-          className="bg-brand-100 text-slate-900 font-bold w-full py-3 rounded-xl mt-4"
-        >
-          Save Result
-        </button>
-
-        {/* ===== LIST ===== */}
-        <div className="mt-8">
-          <h2 className="font-bold text-lg mb-3">Results</h2>
-
-          {entries.map((e, i) => (
-            <div
-              key={i}
-              className="border p-3 rounded-xl mb-2 bg-gray-50"
-            >
-              <p className="font-bold">{e.date}</p>
-              <p>
-                {e.game} → {e.value}
-              </p>
-
-              <p className="text-sm text-gray-600">
-                👤 {e.khaiwalName || "-"} | 📱 {e.whatsapp || "-"}
-              </p>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );

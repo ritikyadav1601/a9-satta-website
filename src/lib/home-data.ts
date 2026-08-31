@@ -25,7 +25,7 @@ export interface HomeData {
   monthlyChartMeta: { month: string; year: string };
   customGames: Record<string, string>;
   customGamesYesterday: Record<string, string>;
-  khaiwal: { name: string; whatsapp: string } | null;
+  khaiwal: { siteName: string; name: string; whatsapp: string } | null;
   topGames: SK24Game[];
 }
 

@@ -20,9 +20,14 @@ export function getISTDateString(offsetDays = 0): string {
 }
 
 export function getWhatsAppLink(phoneNumber: string, message?: string): string {
-  const cleanNumber = phoneNumber.replace(/[^0-9]/g, "");
+  const cleanNumber = normalizeWhatsAppNumber(phoneNumber);
   const encodedMessage = message
     ? `?text=${encodeURIComponent(message)}`
     : "";
   return `https://wa.me/${cleanNumber}${encodedMessage}`;
+}
+
+export function normalizeWhatsAppNumber(phoneNumber: string): string {
+  const cleanNumber = phoneNumber.replace(/[^0-9]/g, "");
+  return cleanNumber.length === 10 ? `91${cleanNumber}` : cleanNumber;
 }
