@@ -496,17 +496,7 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
                 {/* ─── 3TH SECTION: WhatsApp / Khaiwal ─── */}
                 <WhatsAppContactSection lang={lang} khaiwal={khaiwal} />
 
-            {/* ─── 4RD SECTION: Specific Games ─── */}
-           <GameCardSection
-              title={t("आज के A7 सट्टा रिजल्ट", "Other Satta Results", lang)}
-              subtitle={t("इंटरनेट पर सबसे तेज़ A7 सट्टा रिजल्ट", "Fastest A7 Satta result on internet", lang)}
-              icon={<FiZap size={18} />}
-              headerBg="bg-brand-500"
-              accentColor="text-brand-700"
-              games={topGames}
-              isLive
-              lang={lang}
-            />
+         
 
         
 
