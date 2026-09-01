@@ -5,18 +5,19 @@ import type { SK24Game } from "./types";
 const databaseName = process.env.TOP_GAMES_MONGODB_DATABASE || "test";
 
 const topGameDefinitions = [
-  { name: "SADAR BAZAR", time: "01:39 PM", aliases: ["sadar bazar"] },
-  { name: "GWALIOR", time: "02:39 PM", aliases: ["gwalior"] },
-  { name: "DELHI BAZAR", time: "03:00 PM", aliases: ["delhi bazar"] },
-  { name: "DELHI MATKA", time: "03:39 PM", aliases: ["delhi matka"] },
-  { name: "SHRI GANESH", time: "04:30 PM", aliases: ["shri ganesh"] },
-  { name: "AGRA", time: "05:29 PM", aliases: ["agra"] },
-  { name: "FARIDABAD", time: "06:00 PM", aliases: ["faridabad", "fridabad"] },
-  { name: "ALWAR", time: "07:34 PM", aliases: ["alwar"] },
-  { name: "GAZIABAD", time: "09:25 PM", aliases: ["gaziabad", "ghaziabad"] },
-  { name: "DWARKA", time: "10:34 PM", aliases: ["dwarka"] },
-  { name: "GALI", time: "11:25 PM", aliases: ["gali"] },
-  { name: "DESAWAR", time: "05:00 AM", aliases: ["desawar", "desawer"] },
+  { name: "PARAS CITY", time: "12:50 PM", aliases: ["paras city"] },
+  { name: "SADAR BAZAR", time: "01:30 PM", aliases: ["sadar bazar"] },
+  { name: "GWALIOR", time: "02:30 PM", aliases: ["gwalior"] },
+  { name: "DELHI BAZAR", time: "03:10 PM", aliases: ["delhi bazar"] },
+  { name: "DELHI CITY", time: "03:50 PM", aliases: ["delhi city", "delhi matka"] },
+  { name: "SHREE GANESH", time: "04:30 PM", aliases: ["shree ganesh", "shri ganesh"] },
+  { name: "AGRA CITY", time: "05:30 PM", aliases: ["agra city", "agra"] },
+  { name: "FARIDABAD", time: "06:06 PM", aliases: ["faridabad", "fridabad"] },
+  { name: "JAIPUR CITY", time: "07:30 PM", aliases: ["jaipur city", "alwar"] },
+  { name: "GAZIYABAD", time: "08:50 PM", aliases: ["gaziyabad", "gaziabad", "ghaziabad"] },
+  { name: "VARINDAVAN CITY", time: "10:40 PM", aliases: ["varindavan city", "vrindavan city", "dwarka"] },
+  { name: "GALI", time: "11:50 PM", aliases: ["gali"] },
+  { name: "DESAWER", time: "05:00 AM", aliases: ["desawer", "desawar", "dswr"] },
 ] as const;
 
 type GameDocument = {
@@ -26,9 +27,9 @@ type GameDocument = {
 };
 
 type ResultDocument = {
-  game?: ObjectId | string;
-  resultDate?: string;
-  result?: string | number;
+  city?: ObjectId | string;
+  date?: Date | string;
+  number?: string | number;
   updatedAt?: Date | string | number;
 };
 
@@ -66,7 +67,7 @@ async function getDatabase() {
 export async function getTopGamesFromMongoDB(): Promise<SK24Game[]> {
   const database = await getDatabase();
   const games = await database
-    .collection<GameDocument>("games")
+    .collection<GameDocument>("cities")
     .find({ isActive: { $ne: false } })
     .toArray();
 
@@ -84,17 +85,20 @@ export async function getTopGamesFromMongoDB(): Promise<SK24Game[]> {
   const boardOffset = currentIstMinutes() < 180 ? -1 : 0;
   const today = getISTDateString(boardOffset);
   const yesterday = getISTDateString(boardOffset - 1);
+  const resultDates = [yesterday, today].map(
+    (date) => new Date(`${date}T00:00:00.000Z`),
+  );
   const results = gameIds.length
     ? await database
-        .collection<ResultDocument>("gameresults")
-        .find({ game: { $in: gameIds }, resultDate: { $in: [yesterday, today] } })
+        .collection<ResultDocument>("dailynumbers")
+        .find({ city: { $in: gameIds }, date: { $in: resultDates } })
         .sort({ updatedAt: 1 })
         .toArray()
     : [];
 
   const resultByGameAndDate = new Map(
     results.map((result) => [
-      `${String(result.game)}:${result.resultDate}`,
+      `${String(result.city)}:${new Date(result.date || 0).toISOString().slice(0, 10)}`,
       result,
     ]),
   );
@@ -110,8 +114,8 @@ export async function getTopGamesFromMongoDB(): Promise<SK24Game[]> {
     return {
       name: definition.name,
       time: definition.time,
-      yesterday: cleanResult(previousResult?.result),
-      today: cleanResult(currentResult?.result),
+      yesterday: cleanResult(previousResult?.number),
+      today: cleanResult(currentResult?.number),
       updatedAt: currentResult?.updatedAt
         ? new Date(currentResult.updatedAt).toISOString()
         : null,

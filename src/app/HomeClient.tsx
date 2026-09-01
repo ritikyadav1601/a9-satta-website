@@ -51,37 +51,44 @@ interface ResultSpotlight {
 }
 
 const SPOTLIGHT_SCHEDULE: ResultSpotlight[] = [
-  { name: "SADAR BAZAR", time: "01:39 PM", today: "XX" },
-  { name: "GWALIOR", time: "02:39 PM", today: "XX" },
-  { name: "DELHI BAZAR", time: "03:00 PM", today: "XX" },
-  { name: "DELHI MATKA", time: "03:39 PM", today: "XX" },
-  { name: "SHRI GANESH", time: "04:30 PM", today: "XX" },
-  { name: "AGRA", time: "05:29 PM", today: "XX" },
-  { name: "FARIDABAD", time: "06:00 PM", today: "XX" },
-  { name: "ALWAR", time: "07:34 PM", today: "XX" },
-  { name: "GAZIABAD", time: "09:25 PM", today: "XX" },
-  { name: "DWARKA", time: "10:34 PM", today: "XX" },
-  { name: "GALI", time: "11:25 PM", today: "XX" },
-  { name: "DESAWAR", time: "05:00 AM", today: "XX" },
+  { name: "PARAS CITY", time: "12:50 PM", today: "XX" },
+  { name: "SADAR BAZAR", time: "01:30 PM", today: "XX" },
+  { name: "GWALIOR", time: "02:30 PM", today: "XX" },
+  { name: "DELHI BAZAR", time: "03:10 PM", today: "XX" },
+  { name: "DELHI CITY", time: "03:50 PM", today: "XX" },
+  { name: "SHREE GANESH", time: "04:30 PM", today: "XX" },
+  { name: "AGRA CITY", time: "05:30 PM", today: "XX" },
+  { name: "FARIDABAD", time: "06:06 PM", today: "XX" },
+  { name: "JAIPUR CITY", time: "07:30 PM", today: "XX" },
+  { name: "GAZIYABAD", time: "08:50 PM", today: "XX" },
+  { name: "VARINDAVAN CITY", time: "10:40 PM", today: "XX" },
+  { name: "GALI", time: "11:50 PM", today: "XX" },
+  { name: "DESAWER", time: "05:00 AM", today: "XX" },
 ];
 const SPOTLIGHT_GAME_NAMES = new Set([
+  "paras city",
   "sadar bazar",
   "gwalior",
   "delhi bazar",
+  "delhi city",
   "delhi matka",
+  "shree ganesh",
   "shri ganesh",
+  "agra city",
   "agra",
   "faridabad",
   "fridabad",
   "frbd",
-  "alwar",
+  "jaipur city",
+  "gaziyabad",
   "gaziabad",
   "ghaziabad",
   "gzbd",
-  "dwarka",
+  "varindavan city",
+  "vrindavan city",
   "gali",
-  "desawar",
   "desawer",
+  "desawar",
   "dswr",
 ]);
 
@@ -325,16 +332,21 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
 
   // ─── 3RD SECTION: Specific games ───
   const section3GameNames = [
-    "sadar bazar", "gwalior", "delhi bazar", "delhi matka",
-    "shri ganesh", "agra", "faridabad", "alwar",
-    "gaziabad", "dwarka", "gali" ,"desawar",
+    "paras city", "sadar bazar", "gwalior", "delhi bazar",
+    "delhi city", "shree ganesh", "agra city", "faridabad",
+    "jaipur city", "gaziyabad", "varindavan city", "gali", "desawer",
   ];
   // Alternate name mappings for 3rd section
   const section3Aliases: Record<string, string[]> = {
     "faridabad": ["fridabad", "frbd"],
-    "gaziabad": ["ghaziabad", "gzbd"],
+    "gaziyabad": ["gaziabad", "ghaziabad", "gzbd"],
     "delhi bazar": ["delhibazar", "dlbz"],
-    "shri ganesh": ["shriganesh", "srgn"],
+    "delhi city": ["delhi matka"],
+    "shree ganesh": ["shri ganesh", "shriganesh", "srgn"],
+    "agra city": ["agra"],
+    "jaipur city": ["alwar"],
+    "varindavan city": ["vrindavan city", "dwarka"],
+    "desawer": ["desawar", "dswr"],
   };
   const fallbackSection3Games: SK24Game[] = section3GameNames.map(name => {
     const norm = name.toLowerCase().replace(/\s+/g, "");
@@ -495,6 +507,17 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
 
                 {/* ─── 3TH SECTION: WhatsApp / Khaiwal ─── */}
                 <WhatsAppContactSection lang={lang} khaiwal={khaiwal} />
+
+            {/* Existing games, placed below the Khaiwal chart. */}
+            <GameCardSection
+              title={t("अन्य सट्टा रिजल्ट", "Other Satta Results", lang)}
+              subtitle={t("खाईवाल चार्ट के नीचे", "More game results", lang)}
+              icon={<FiTrendingUp size={18} />}
+              headerBg="bg-emerald-600"
+              accentColor="text-emerald-600"
+              games={topGames}
+              lang={lang}
+            />
 
          
 
