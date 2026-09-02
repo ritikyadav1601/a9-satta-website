@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BLOG_POSTS, formatBlogDate } from "@/lib/blog-data";
+import { getMongoBlogPosts } from "@/lib/blog-mongodb";
 import { SITE_DISPLAY_DOMAIN, SITE_NAME, SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Satta King Blog — Result, Chart & Record Guides",
   description:
-    "Live-SattaKing.com ब्लॉग पर Satta King Result, Chart और पुराने रिकॉर्ड से जुड़ी उपयोगी जानकारी, गाइड और टिप्स पढ़ें। डेली रिजल्ट, हिस्टोरिकल चार्ट और यूज़र एक्सपीरियंस की पूरी जानकारी।",
+    "SattaTodayResult.com ब्लॉग पर Satta King Result, Chart और पुराने रिकॉर्ड से जुड़ी उपयोगी जानकारी, गाइड और टिप्स पढ़ें। डेली रिजल्ट, हिस्टोरिकल चार्ट और यूज़र एक्सपीरियंस की पूरी जानकारी।",
   alternates: { canonical: `${SITE_URL}/blog` },
   openGraph: {
     title: `Satta King Blog — ${SITE_NAME}`,
@@ -16,7 +17,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default function BlogPage() {
+export const dynamic = "force-dynamic";
+
+export default async function BlogPage() {
+  const mongoPosts = await getMongoBlogPosts().catch(() => []);
+  const posts = [
+    ...mongoPosts.map((post) => ({
+      slug: post.slug,
+      title: post.title,
+      excerpt: post.metaDescription,
+      date: post.date,
+      tags: ["Latest", "Blog"],
+      image: post.image,
+    })),
+    ...BLOG_POSTS.map((post) => ({ ...post, image: "" })),
+  ];
   return (
     <div className="bg-white min-h-screen">
       <div className="max-w-4xl mx-auto px-4 py-10 md:py-14">
@@ -35,12 +50,19 @@ export default function BlogPage() {
         </header>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
-          {BLOG_POSTS.map((post) => (
+          {posts.map((post) => (
             <Link
               key={post.slug}
               href={`/blog/${post.slug}`}
               className="group block rounded-2xl border border-gray-200 bg-white p-5 md:p-6 shadow-sm hover:shadow-md hover:border-brand-300 transition-all"
             >
+              {post.image && (
+                <img
+                  src={post.image}
+                  alt={post.title}
+                  className="mb-4 aspect-video w-full rounded-xl object-cover"
+                />
+              )}
               <div className="flex flex-wrap items-center gap-2 mb-3">
                 {post.tags.slice(0, 2).map((tag) => (
                   <span

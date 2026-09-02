@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Disclaimer",
-  description: "Disclaimer for Live-SattaKing.com - Read our terms and conditions.",
+  description: "Disclaimer for SattaTodayResult.com - Read our terms and conditions.",
 };
 
 export default function DisclaimerPage() {
@@ -13,16 +13,16 @@ export default function DisclaimerPage() {
 
         <div className="space-y-5 text-sm md:text-base text-gray-600 leading-relaxed">
           <div className="bg-red-50 border border-red-200 rounded-xl p-5 text-red-700">
-            <strong>Important Legal Notice:</strong> Please read this disclaimer carefully before using Live-SattaKing.com.
+            <strong>Important Legal Notice:</strong> Please read this disclaimer carefully before using SattaTodayResult.com.
           </div>
 
           <p>
-            Live-SattaKing.com is an independent informational website that provides historical data, chart records, and result updates for various number-based games. This website is intended solely for informational, educational, and archival purposes.
+            SattaTodayResult.com is an independent informational website that provides historical data, chart records, and result updates for various number-based games. This website is intended solely for informational, educational, and archival purposes.
           </p>
 
           <h2 className="text-lg font-bold text-gray-900 pt-2">No Gambling Operations</h2>
           <p>
-            Live-SattaKing.com does not own, operate, manage, or facilitate any form of online or offline gambling, lottery, betting, or satta matka operations. We are not associated with any game operators or organizers.
+            SattaTodayResult.com does not own, operate, manage, or facilitate any form of online or offline gambling, lottery, betting, or satta matka operations. We are not associated with any game operators or organizers.
           </p>
 
           <h2 className="text-lg font-bold text-gray-900 pt-2">Legal Compliance</h2>
@@ -37,12 +37,12 @@ export default function DisclaimerPage() {
 
           <h2 className="text-lg font-bold text-gray-900 pt-2">Accuracy of Information</h2>
           <p>
-            While we strive to provide accurate and up-to-date information, Live-SattaKing.com makes no guarantees regarding the accuracy, completeness, or reliability of any data displayed on this platform. Users should verify all information independently.
+            While we strive to provide accurate and up-to-date information, SattaTodayResult.com makes no guarantees regarding the accuracy, completeness, or reliability of any data displayed on this platform. Users should verify all information independently.
           </p>
 
           <h2 className="text-lg font-bold text-gray-900 pt-2">User Responsibility</h2>
           <p>
-            By using this website, you acknowledge that you are solely responsible for your actions. Live-SattaKing.com shall not be held liable for any losses, damages, or legal consequences arising from the use of information provided on this platform.
+            By using this website, you acknowledge that you are solely responsible for your actions. SattaTodayResult.com shall not be held liable for any losses, damages, or legal consequences arising from the use of information provided on this platform.
           </p>
 
           <p className="text-xs text-gray-400 pt-4">

@@ -9,14 +9,14 @@ export default function AboutPage() {
     <div className="bg-white min-h-screen">
       <div className="max-w-3xl mx-auto px-4 py-10 md:py-14">
         <h1 className="text-2xl md:text-3xl font-black text-gray-900 mb-6">
-          {t("Live-SattaKing.com के बारे में", "About Live-SattaKing.com", lang)}
+          {t("SattaTodayResult.com के बारे में", "About SattaTodayResult.com", lang)}
         </h1>
 
         <div className="space-y-5 text-sm md:text-base text-gray-600 leading-relaxed">
           <p>
             {t(
-              "Live-SattaKing.com ऑनलाइन लाइव A7 सट्टा रिजल्ट देखने के लिए सबसे तेज़ और भरोसेमंद प्लेटफॉर्म में से एक है। हम गली, देसावर, गाज़ियाबाद, फरीदाबाद, श्री गणेश, दिल्ली बाजार और कई अन्य क्षेत्रीय बाजारों सहित 100+ गेम्स के लिए रियल-टाइम अपडेट प्रदान करते हैं।",
-              "Live-SattaKing.com is one of the fastest and most reliable platforms for checking live A7 Satta results online. We provide real-time updates for over 100+ games including Gali, Desawar, Ghaziabad, Faridabad, Shri Ganesh, Delhi Bazar and many more regional markets.",
+              "SattaTodayResult.com ऑनलाइन लाइव सट्टा टुडे रिजल्ट रिजल्ट देखने के लिए सबसे तेज़ और भरोसेमंद प्लेटफॉर्म में से एक है। हम गली, देसावर, गाज़ियाबाद, फरीदाबाद, श्री गणेश, दिल्ली बाजार और कई अन्य क्षेत्रीय बाजारों सहित 100+ गेम्स के लिए रियल-टाइम अपडेट प्रदान करते हैं।",
+              "SattaTodayResult.com is one of the fastest and most reliable platforms for checking live Satta Today Result results online. We provide real-time updates for over 100+ games including Gali, Desawar, Ghaziabad, Faridabad, Shri Ganesh, Delhi Bazar and many more regional markets.",
               lang
             )}
           </p>
@@ -26,8 +26,8 @@ export default function AboutPage() {
           </h2>
           <p>
             {t(
-              "हमारा लक्ष्य A7 सट्टा रिजल्ट तक सटीक, तुरंत और मुफ्त पहुँच प्रदान करना है। हम समझते हैं कि समय मायने रखता है, इसलिए हमारा प्लेटफॉर्म रिजल्ट आधिकारिक रूप से घोषित होते ही तुरंत दिखाने के लिए बनाया गया है।",
-              "Our goal is to provide accurate, instant, and free access to A7 Satta results. We understand that timing matters, which is why our platform is built to deliver results the exact moment they are officially declared.",
+              "हमारा लक्ष्य सट्टा टुडे रिजल्ट रिजल्ट तक सटीक, तुरंत और मुफ्त पहुँच प्रदान करना है। हम समझते हैं कि समय मायने रखता है, इसलिए हमारा प्लेटफॉर्म रिजल्ट आधिकारिक रूप से घोषित होते ही तुरंत दिखाने के लिए बनाया गया है।",
+              "Our goal is to provide accurate, instant, and free access to Satta Today Result results. We understand that timing matters, which is why our platform is built to deliver results the exact moment they are officially declared.",
               lang
             )}
           </p>
@@ -71,8 +71,8 @@ export default function AboutPage() {
           </h2>
           <p>
             {t(
-              "Live-SattaKing.com आधुनिक वेब टेक्नोलॉजी से संचालित है जो बिजली की तेज़ी से पेज लोड और रियल-टाइम डेटा अपडेट सुनिश्चित करती है। हमारा ऑटोमेटेड सिस्टम लगातार आधिकारिक स्रोतों की निगरानी करता है और रिजल्ट घोषित होने के कुछ सेकंड के भीतर अपडेट करता है।",
-              "Live-SattaKing.com is powered by modern web technologies that ensure lightning-fast page loads and real-time data updates. Our automated systems continuously monitor official sources and update results within seconds of their declaration.",
+              "SattaTodayResult.com आधुनिक वेब टेक्नोलॉजी से संचालित है जो बिजली की तेज़ी से पेज लोड और रियल-टाइम डेटा अपडेट सुनिश्चित करती है। हमारा ऑटोमेटेड सिस्टम लगातार आधिकारिक स्रोतों की निगरानी करता है और रिजल्ट घोषित होने के कुछ सेकंड के भीतर अपडेट करता है।",
+              "SattaTodayResult.com is powered by modern web technologies that ensure lightning-fast page loads and real-time data updates. Our automated systems continuously monitor official sources and update results within seconds of their declaration.",
               lang
             )}
           </p>
@@ -82,8 +82,8 @@ export default function AboutPage() {
           </h2>
           <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
             {t(
-              "Live-SattaKing.com पूरी तरह से एक सूचनात्मक वेबसाइट है। हम किसी भी प्रकार के जुआ, सट्टेबाजी या लॉटरी का संचालन, प्रचार या सुविधा नहीं देते। प्रदर्शित सभी डेटा केवल सूचनात्मक और शैक्षिक उद्देश्यों के लिए है। कृपया अपने क्षेत्र में लागू कानूनों का पालन करें।",
-              "Live-SattaKing.com is strictly an informational website. We do not operate, promote, or facilitate any form of gambling, betting, or lottery. All data displayed is for informational and educational purposes only. Please follow the laws applicable in your region.",
+              "SattaTodayResult.com पूरी तरह से एक सूचनात्मक वेबसाइट है। हम किसी भी प्रकार के जुआ, सट्टेबाजी या लॉटरी का संचालन, प्रचार या सुविधा नहीं देते। प्रदर्शित सभी डेटा केवल सूचनात्मक और शैक्षिक उद्देश्यों के लिए है। कृपया अपने क्षेत्र में लागू कानूनों का पालन करें।",
+              "SattaTodayResult.com is strictly an informational website. We do not operate, promote, or facilitate any form of gambling, betting, or lottery. All data displayed is for informational and educational purposes only. Please follow the laws applicable in your region.",
               lang
             )}
           </div>

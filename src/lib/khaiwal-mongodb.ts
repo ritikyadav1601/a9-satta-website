@@ -1,5 +1,5 @@
-import { MongoClient } from "mongodb";
 import { SITE_DOMAIN, SITE_NAME } from "./site";
+import { getTopGamesDatabase } from "./top-games-mongodb";
 
 export type KhaiwalSettings = {
   siteName: string;
@@ -7,19 +7,11 @@ export type KhaiwalSettings = {
   whatsapp: string;
 };
 
-const databaseName = process.env.KHAIWAL_MONGODB_DATABASE || "khaiwal_management";
 const collectionName = "site_settings";
 const siteId = SITE_DOMAIN;
 
-declare global {
-  var khaiwalMongoClientPromise: Promise<MongoClient> | undefined;
-}
-
 export async function getKhaiwalDatabase() {
-  const uri = process.env.KHAIWAL_MONGODB_URI?.trim();
-  if (!uri) throw new Error("KHAIWAL_MONGODB_URI is not configured.");
-  global.khaiwalMongoClientPromise ||= new MongoClient(uri).connect();
-  return (await global.khaiwalMongoClientPromise).db(databaseName);
+  return getTopGamesDatabase();
 }
 
 export async function getKhaiwalSettings(): Promise<KhaiwalSettings | null> {

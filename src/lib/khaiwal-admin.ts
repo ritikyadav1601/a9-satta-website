@@ -1,6 +1,6 @@
 import { randomBytes, scrypt as scryptCallback, timingSafeEqual } from "crypto";
 import { promisify } from "util";
-import { getKhaiwalDatabase } from "./khaiwal-mongodb";
+import { getTopGamesDatabase } from "./top-games-mongodb";
 
 const scrypt = promisify(scryptCallback);
 const collectionName = "admin_users";
@@ -21,7 +21,7 @@ export async function hashAdminPassword(password: string) {
 export async function verifyKhaiwalAdmin(loginId: string, password: string) {
   if (!loginId || !password) return false;
 
-  const user = await (await getKhaiwalDatabase())
+  const user = await (await getTopGamesDatabase())
     .collection<AdminUser>(collectionName)
     .findOne({ loginId: loginId.trim().toLowerCase(), active: true });
 

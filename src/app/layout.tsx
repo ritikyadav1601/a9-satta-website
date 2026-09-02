@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -7,26 +6,16 @@ import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Live Satta King | Today's Live Results & Charts",
+    default: "Satta Today Result | Today's Live Results & Charts",
     template: `%s | ${SITE_NAME}`,
   },
-  description: "Check today's Satta King Result, historical charts, and old records on Live-SattaKing.com.",
-  verification: {
-    google: "HLr8_1MYqT43AigcdbFvtAlUDnPwmOYrdM5BNxmYIuM",
-  },
+  description: "Check today's Satta King Result, historical charts, and old records on SattaTodayResult.com.",
+  verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+    : undefined,
 
   keywords: [
     "live satta king",
@@ -53,7 +42,6 @@ export const metadata: Metadata = {
     "24 7 satta king",
     "online gali disawar",
     "black satta live result",
-    "a7 satta",
     "satta king result",
     "satta king",
     "satta result",
@@ -74,14 +62,14 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: "Live Satta King | Today's Live Results & Charts",
+    title: "Satta Today Result | Today's Live Results & Charts",
     description:
       "Check today's Satta King Result, Gali, Desawar, Faridabad and Ghaziabad results, charts, and old records.",
   },
   twitter: {
     card: "summary",
-    title: "Live Satta King | Today's Live Results & Charts",
-    description: "Check today's Satta King Result, historical charts, and old records on Live-SattaKing.com.",
+    title: "Satta Today Result | Today's Live Results & Charts",
+    description: "Check today's Satta King Result, historical charts, and old records on SattaTodayResult.com.",
   },
   robots: { index: true, follow: true },
   alternates: { canonical: SITE_URL },
@@ -93,10 +81,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
         <LanguageProvider>
           <Header />

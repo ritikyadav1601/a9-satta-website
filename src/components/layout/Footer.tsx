@@ -7,10 +7,10 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           <div>
             <h3 className="text-white text-lg font-black mb-3">
-              LIVE<span className="text-brand-300">SATTA</span>
+              SATTA<span className="text-brand-300">RESULT</span>
             </h3>
             <p className="text-sm leading-relaxed">
-              Live-SattaKing.com is India&apos;s fastest platform for live Live Satta results.
+              SattaTodayResult.com is India&apos;s fastest platform for live Live Satta results.
               Get instant updates for Gali, Desawar, Ghaziabad, Faridabad &amp; 100+ games.
             </p>
           </div>
@@ -18,7 +18,7 @@ export function Footer() {
           <div>
             <h4 className="text-white font-semibold mb-3">Quick Links</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/" className="hover:text-white transition-colors">Live Satta Results</Link></li>
+              <li><Link href="/" className="hover:text-white transition-colors">Satta Results</Link></li>
               <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
               <li><Link href="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
               <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
@@ -38,7 +38,7 @@ export function Footer() {
         </div>
 
         <div className="border-t border-white/10 mt-8 pt-6 text-center text-sm">
-          <p>&copy; {new Date().getFullYear()} Live-SattaKing.com &mdash; All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} SattaTodayResult.com &mdash; All rights reserved.</p>
         </div>
       </div>
     </footer>

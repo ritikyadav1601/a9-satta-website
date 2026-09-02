@@ -61,7 +61,7 @@ const SPOTLIGHT_SCHEDULE: ResultSpotlight[] = [
   { name: "FARIDABAD", time: "06:06 PM", today: "XX" },
   { name: "JAIPUR CITY", time: "07:30 PM", today: "XX" },
   { name: "GAZIYABAD", time: "08:50 PM", today: "XX" },
-  { name: "VARINDAVAN CITY", time: "10:40 PM", today: "XX" },
+  { name: "VARINDAWAN CITY", time: "10:40 PM", today: "XX" },
   { name: "GALI", time: "11:50 PM", today: "XX" },
   { name: "DESAWER", time: "05:00 AM", today: "XX" },
 ];
@@ -85,6 +85,7 @@ const SPOTLIGHT_GAME_NAMES = new Set([
   "ghaziabad",
   "gzbd",
   "varindavan city",
+  "varindawan city",
   "vrindavan city",
   "gali",
   "desawer",
@@ -203,6 +204,7 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
     customGamesYesterday,
     khaiwal,
     topGames: mongoTopGames,
+    blogs = [],
   } = homeData;
 
   useEffect(() => {
@@ -334,19 +336,20 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
   const section3GameNames = [
     "paras city", "sadar bazar", "gwalior", "delhi bazar",
     "delhi city", "shree ganesh", "agra city", "faridabad",
-    "jaipur city", "gaziyabad", "varindavan city", "gali", "desawer",
+    "jaipur city", "gaziyabad", "varindawan city", "gali", "desawer",
   ];
   // Alternate name mappings for 3rd section
   const section3Aliases: Record<string, string[]> = {
     "faridabad": ["fridabad", "frbd"],
     "gaziyabad": ["gaziabad", "ghaziabad", "gzbd"],
     "delhi bazar": ["delhibazar", "dlbz"],
-    "delhi city": ["delhi matka"],
+    "delhi city": [],
     "shree ganesh": ["shri ganesh", "shriganesh", "srgn"],
-    "agra city": ["agra"],
-    "jaipur city": ["alwar"],
-    "varindavan city": ["vrindavan city", "dwarka"],
-    "desawer": ["desawar", "dswr"],
+    "agra city": [],
+    "jaipur city": [],
+    "varindawan city": ["varindavan city", "vrindavan city"],
+    "gali": ["purani gali"],
+    "desawer": ["desawar", "deshawer", "dswr"],
   };
   const fallbackSection3Games: SK24Game[] = section3GameNames.map(name => {
     const norm = name.toLowerCase().replace(/\s+/g, "");
@@ -430,17 +433,9 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
       <div className="bg-gradient-to-br from-brand-50 via-brand-100 to-brand-200 text-slate-900 text-center py-7 md:py-12 px-3 md:px-4 border-b-4 border-brand-ink">
        
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight mb-2">
-          Live Satta King {format(new Date(), "dd MMMM yyyy")}
-          <br className="md:hidden" />
-          <span className="mt-1 inline-block rounded-lg bg-brand-ink px-2 text-brand-100"> {t("रियल-टाइम रिजल्ट और दैनिक मार्केट रिकॉर्ड", "Real-Time Results & Daily Market Records", lang)}</span>
+        Satta King Today Result and Daily Record Chart
         </h1>
-        <p className="text-neutral-800 font-medium text-sm md:text-base max-w-2xl mx-auto">
-          {t(
-            "सबसे तेज़ A7 सट्टा रिजल्ट अपडेट। गली, देसावर, गाज़ियाबाद, फरीदाबाद और 100+ गेम्स।",
-            "Fastest A7 Satta result updates. Gali, Desawar, Ghaziabad, Faridabad & 100+ games.",
-            lang
-          )}
-        </p>
+      
         <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto text-left">
           <ResultSpotlightCard
             label={t("आने वाला रिजल्ट", "Upcoming Result", lang)}
@@ -466,8 +461,8 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
         <p className="text-center text-[11px] md:text-xs text-gray-500 max-w-4xl mx-auto">
           <span className="font-bold text-red-500">{t("अस्वीकरण", "DISCLAIMER", lang)}:</span>{" "}
           {t(
-            "Live-SattaKing.com एक स्वतंत्र सूचनात्मक वेबसाइट है। हम जुआ या सट्टेबाजी को बढ़ावा नहीं देते।",
-            "Live-SattaKing.com is an independent informational website. We do not promote gambling or betting.",
+            "SattaTodayResult.com एक स्वतंत्र सूचनात्मक वेबसाइट है। हम जुआ या सट्टेबाजी को बढ़ावा नहीं देते।",
+            "SattaTodayResult.com is an independent informational website. We do not promote gambling or betting.",
             lang
           )}{" "}
           <Link href="/disclaimer" className="text-brand-700 hover:underline font-bold">
@@ -502,22 +497,14 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
               initialRows={monthlyChart}
               initialMonth={monthlyChartMeta.month}
               initialYear={monthlyChartMeta.year}
+              declaredGames={mongoTopGames}
               lang={lang}
             />
 
                 {/* ─── 3TH SECTION: WhatsApp / Khaiwal ─── */}
                 <WhatsAppContactSection lang={lang} khaiwal={khaiwal} />
 
-            {/* Existing games, placed below the Khaiwal chart. */}
-            <GameCardSection
-              title={t("अन्य सट्टा रिजल्ट", "Other Satta Results", lang)}
-              subtitle={t("खाईवाल चार्ट के नीचे", "More game results", lang)}
-              icon={<FiTrendingUp size={18} />}
-              headerBg="bg-emerald-600"
-              accentColor="text-emerald-600"
-              games={topGames}
-              lang={lang}
-            />
+           
 
          
 
@@ -577,6 +564,49 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
 
         {/* SEO */}
         <LiveSattaSeoContent />
+
+        {/* Latest MongoDB blogs */}
+        {blogs.length > 0 && (
+          <section className="rounded-3xl border border-brand-200 bg-white p-4 shadow-sm md:p-7">
+            <div className="mb-5 flex items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-700">Latest articles</p>
+                <h2 className="mt-1 text-xl font-black text-slate-950 md:text-2xl">Satta King Blog</h2>
+              </div>
+              <Link href="/blog" className="shrink-0 text-sm font-black text-brand-700 hover:text-brand-900">
+                View all →
+              </Link>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {blogs.map((post) => (
+                <Link
+                  key={post.slug}
+                  href={`/blog/${post.slug}`}
+                  className="group overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md"
+                >
+                  {post.image && (
+                    <img src={post.image} alt={post.title} className="aspect-video w-full object-cover" />
+                  )}
+                  <div className="p-4">
+                    <p className="text-xs font-bold text-slate-500">
+                      {new Date(post.date).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </p>
+                    <h3 className="mt-2 line-clamp-2 font-black leading-snug text-slate-950 group-hover:text-brand-700">
+                      {post.title}
+                    </h3>
+                    <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-slate-600">
+                      {post.metaDescription}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );
@@ -770,7 +800,7 @@ function SK24ChartsSection({ tables, lang }: { tables: SK24ChartTable[]; lang: "
             {t("मंथली चार्ट", "Monthly Charts", lang)}
           </h2>
           <p className="text-xs text-gray-400">
-            {t("A7 सट्टा चार्ट रिकॉर्ड", "A7 Satta chart records", lang)}
+            {t("सट्टा टुडे रिजल्ट चार्ट रिकॉर्ड", "Satta Today Result chart records", lang)}
           </p>
         </div>
       </div>
@@ -825,17 +855,18 @@ function WhatsAppContactSection({ lang, khaiwal }: any) {
   const whatsappPhone = normalizeWhatsAppNumber(phone);
 
   const games = [
-    { name: t("सदर बाजार", "Sadar Bazar", lang), time: "1:30 PM" },
-    { name: t("ग्वालियर", "Gwalior", lang), time: "2:30 PM" },
-    { name: t("दिल्ली बाजार", "Delhi Bazar", lang), time: "3:00 PM" },
-    { name: t("दिल्ली मटका", "Delhi Matka", lang), time: "3:30 PM" },
+    { name: t("पारस सिटी", "Paras City", lang), time: "12:50 PM" },
+    { name: t("सदर बाजार", "Sadar Bazar", lang), time: "1:20 PM" },
+    { name: t("ग्वालियर", "Gwalior", lang), time: "2:15 PM" },
+    { name: t("दिल्ली बाजार", "Delhi Bazar", lang), time: "2:55 PM" },
+    { name: t("दिल्ली सिटी", "Delhi City", lang), time: "3:40 PM" },
     { name: t("श्री गणेश", "Shri Ganesh", lang), time: "4:20 PM" },
-    { name: t("आगरा", "Agra", lang), time: "5:20 PM" },
+    { name: t("आगरा सिटी", "Agra City", lang), time: "5:20 PM" },
     { name: t("फरीदाबाद", "Faridabad", lang), time: "5:55 PM" },
-    { name: t("अलवर", "Alwar", lang), time: "7:20 PM" },
-    { name: t("गाज़ियाबाद", "Ghaziabad", lang), time: "9:00 PM" },
-    { name: t("द्वारका", "Dwarka", lang), time: "10:25 PM" },
-    { name: t("गली", "Gali", lang), time: "11:10 PM" },
+    { name: t("जयपुर सिटी", "Jaipur City", lang), time: "7:20 PM" },
+    { name: t("गाज़ियाबाद", "Ghaziabad", lang), time: "9:30 PM" },
+    { name: t("वृन्दावन सिटी", "Vrindavan City", lang), time: "10:40 PM" },
+    { name: t("गली", "Gali", lang), time: "11:30 PM" },
     { name: t("दिसावर", "Disawar", lang), time: "1:30 AM" },
   ];
 
@@ -933,7 +964,7 @@ function WhatsAppContactSection({ lang, khaiwal }: any) {
         {/* WhatsApp Button */}
         <div className="px-4 pb-8 pt-5 flex justify-center">
           <a
-            href={getWhatsAppLink(phone, "A7 SATTA")}
+            href={getWhatsAppLink(phone, "Satta Today Result")}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-4 bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-full font-black text-lg shadow-lg hover:scale-105 transition-all"
@@ -958,12 +989,12 @@ function WhatsAppContactSection({ lang, khaiwal }: any) {
 // ─── Monthly Chart Section ───
 
 const CHART_GAMES = [
-  { key: "dlbz" as const, name: "Delhi Bazar" },
-  { key: "srgn" as const, name: "Shri Ganesh" },
-  { key: "frbd" as const, name: "Faridabad" },
-  { key: "gzbd" as const, name: "Gaziabad" },
-  { key: "gali" as const, name: "Gali" },
-  { key: "dswr" as const, name: "Disawar" },
+  { key: "dlbz" as const, name: "Delhi Bazar", resultName: "DELHI BAZAR" },
+  { key: "srgn" as const, name: "Shri Ganesh", resultName: "SHREE GANESH" },
+  { key: "frbd" as const, name: "Faridabad", resultName: "FARIDABAD" },
+  { key: "gzbd" as const, name: "Gaziabad", resultName: "GAZIYABAD" },
+  { key: "gali" as const, name: "Gali", resultName: "GALI" },
+  { key: "dswr" as const, name: "Disawar", resultName: "DESAWER" },
 ];
 
 const MONTHS = [
@@ -975,11 +1006,13 @@ function MonthlyChartSection({
   initialRows,
   initialMonth,
   initialYear,
+  declaredGames,
   lang,
 }: {
   initialRows: ChartRow[];
   initialMonth: string;
   initialYear: string;
+  declaredGames: SK24Game[];
   lang: "hi" | "en";
 }) {
   const now = new Date();
@@ -1024,6 +1057,27 @@ function MonthlyChartSection({
   const title = lang === "hi"
     ? `${displayMonth} ${selectedYear} मंथली चार्ट`
     : `${displayMonth} ${selectedYear} Monthly Chart`;
+  const istDateParts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Kolkata",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }).formatToParts(new Date()).map((part) => [part.type, part.value]),
+  );
+  const declaredByName = new Map(
+    declaredGames.map((game) => [game.name.toUpperCase(), game.today]),
+  );
+  const chartValue = (row: ChartRow, game: (typeof CHART_GAMES)[number]) => {
+    const isToday =
+      selectedYear === istDateParts.year &&
+      selectedMonth.toLowerCase() === String(istDateParts.month).toLowerCase() &&
+      Number(row.date) === Number(istDateParts.day);
+
+    if (!isToday) return row[game.key] || "XX";
+    const declaredValue = declaredByName.get(game.resultName);
+    return isDeclaredResult(declaredValue) ? declaredValue : "XX";
+  };
 
   return (
     <section id="monthly-records" className="sa scroll-mt-24 opacity-0 translate-y-8">
@@ -1110,7 +1164,7 @@ function MonthlyChartSection({
                         key={g.key}
                         className="py-1.5 px-1.5 md:px-3 font-mono font-bold border border-gray-200 text-gray-800"
                       >
-                        {row[g.key] || "XX"}
+                        {chartValue(row, g)}
                       </td>
                     ))}
                   </tr>
@@ -1132,314 +1186,106 @@ function MonthlyChartSection({
 
 // ─── SEO Content ───
 
-const MARKET_SCHEDULES = [
-  { market: "Desawar", time: "Early Morning (05:00 AM)", href: "/desawar-result/", link: "Check Desawar Live Result" },
-  { market: "Delhi Bazar", time: "Mid-Afternoon (03:10 PM)", href: "/delhi-bazar/", link: "Check Delhi Bazar Status" },
-  { market: "Shree Ganesh", time: "Afternoon (04:30 PM)", href: "/shree-ganesh/", link: "Check Shree Ganesh Status" },
-  { market: "Faridabad", time: "Early Evening (06:00 PM)", href: "/faridabad-result/", link: "Check Faridabad Result" },
-  { market: "Ghaziabad", time: "Late Evening (08:45 PM)", href: "/ghaziabad-result/", link: "Check Ghaziabad Result" },
-  { market: "Gali", time: "Late Night (11:30 PM)", href: "/gali-result/", link: "Check Gali Live Result" },
-];
-
-function LiveSattaSeoContent() {
-  const year = format(new Date(), "yyyy");
-
+function SuppliedHomeSeoContent() {
   return (
-    <article className="sa opacity-0 translate-y-8 space-y-8 rounded-2xl border border-gray-200 bg-white p-5 text-sm leading-relaxed text-gray-700 md:p-8">
+    <>
       <section className="space-y-3">
-        <h2 className="text-xl font-black text-gray-900 md:text-2xl">About Today&apos;s Live Satta King Updates</h2>
-        <p>
-          Welcome to <strong>Live-SattaKing.com</strong>, an independent digital directory created to provide organized, real-time public updates for daily Satta King markets. We aggregate numerical data declared in the public domain and present it in a readable, structured format.
-        </p>
-        <p>
-          This portal operates strictly as an informational and historical data archive. We do not operate wagering services, promote cash games, accept deposits, or offer predictive number schemes.
-        </p>
-      </section>
-
-      <section className="space-y-4" aria-labelledby="market-schedule-heading">
-        <h2 id="market-schedule-heading" className="text-xl font-black text-gray-900 md:text-2xl">
-          Primary Market Schedules &amp; Daily Release Information
-        </h2>
-        <p>
-          Each regional market follows an independent schedule. When a scheduled time passes but no verified number has been published, the live dashboard shows a waiting indicator instead of presenting an unverified result.
-        </p>
-        <div className="overflow-x-auto rounded-xl border border-brand-200">
-          <table className="w-full min-w-[680px] border-collapse text-left">
-            <thead className="bg-brand-ink text-brand-50">
-              <tr>
-                <th className="px-4 py-3">Market Name</th>
-                <th className="px-4 py-3">Typical Announcement Window</th>
-                <th className="px-4 py-3">Current Status / Latest Public Entry</th>
-              </tr>
-            </thead>
-            <tbody>
-              {MARKET_SCHEDULES.map((item, index) => (
-                <tr key={item.market} className={index % 2 ? "bg-brand-50" : "bg-white"}>
-                  <td className="border-t border-brand-100 px-4 py-3 font-bold text-gray-900">{item.market}</td>
-                  <td className="border-t border-brand-100 px-4 py-3">{item.time}</td>
-                  <td className="border-t border-brand-100 px-4 py-3">
-                    <Link href={item.href} className="font-bold text-brand-700 hover:underline">{item.link}</Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-xl bg-brand-50 p-4">
-            <h3 className="font-black text-gray-900">Gali Live Result &amp; Nightly Status</h3>
-            <p className="mt-1">The Gali live result is generally the closing update of the daily cycle. Once publicly declared, it is added to the historical record.</p>
-          </div>
-          <div className="rounded-xl bg-brand-50 p-4">
-            <h3 className="font-black text-gray-900">Desawar Live Result &amp; Morning Tracking</h3>
-            <p className="mt-1">The Desawar today result is normally an early-morning update and begins the day&apos;s primary market record.</p>
-          </div>
-          <div className="rounded-xl bg-brand-50 p-4">
-            <h3 className="font-black text-gray-900">Faridabad &amp; Ghaziabad Timelines</h3>
-            <p className="mt-1">Faridabad usually begins the evening cycle, followed later by the Ghaziabad public result. Actual release times may vary.</p>
-          </div>
-          <div className="rounded-xl bg-brand-50 p-4">
-            <h3 className="font-black text-gray-900">Delhi Bazar &amp; Shree Ganesh Overview</h3>
-            <p className="mt-1">These daytime markets provide afternoon updates before the evening result cycle begins.</p>
-          </div>
-        </div>
+        <p>Welcome to <strong>SattaTodayResult.com</strong>, where you can find the latest Satta result information in a simple and easy-to-read format.</p>
+        <p>This website is designed for users looking for Satta Today Result, Satta King Today Result, daily result updates, charts and previous records.</p>
+        <p>Current and historical information will be organized into separate pages so you can find the result you need without searching through unnecessary content.</p>
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-xl font-black text-gray-900 md:text-2xl">Satta King Chart Live &amp; Historical Archives ({year})</h2>
-        <p>Daily public outcomes are organized into monthly grids so visitors can review previous Satta results without searching through separate updates.</p>
-        <ul className="list-disc space-y-2 pl-5">
-          <li><Link href="/satta-king-chart/" className="font-bold text-brand-700 hover:underline">Satta King Record Chart {year}</Link>: review the current calendar-year records across primary markets.</li>
-          <li><Link href="/monthly-records/" className="font-bold text-brand-700 hover:underline">Monthly Record Archive</Link>: browse the homepage&apos;s month-by-month historical result table.</li>
+        <h2 className="text-xl font-black text-gray-900 md:text-2xl">Check Latest Satta King Result Online</h2>
+        <p>The Satta King Today Result section is made for users who want to check the latest available result information.</p>
+        <p>The result pages will be updated with the relevant date and market information. Always check the result date before treating an entry as the latest update.</p>
+        <p>For other result categories, you can explore the relevant pages from the main navigation.</p>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-xl font-black text-gray-900 md:text-2xl">Real Time Satta Result Today Updates</h2>
+        <p>Looking for the Satta Result Today? This website brings current result information together in a clean and simple format.</p>
+        <p>Each important result category will have its own page. This helps users find specific information quickly and also keeps the website structure clear.</p>
+        <p>The focus is on useful result information, readable charts and properly organized previous records.</p>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-xl font-black text-gray-900 md:text-2xl">Complete Satta King Charts and Records</h2>
+        <p>A Satta King Chart can contain previous result records arranged by date, month or year.</p>
+        <p>Instead of placing a very large amount of historical information on one page, separate chart pages can be created for different periods.</p>
+        <p>This makes old records easier to find and gives every chart page a clear purpose.</p>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-xl font-black text-gray-900 md:text-2xl">Historical Satta King Old Result Archive</h2>
+        <p>Looking for an old Satta King result? Historical records can be organized through monthly and yearly chart pages.</p>
+        <p>For example, users can find a particular month and then check the available dates from that chart.</p>
+        <p>Old records should always show the correct date so that previous information is not confused with the current result.</p>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-xl font-black text-gray-900 md:text-2xl">Historical Satta King Old Result Archive</h2>
+        <p>Daily result pages are useful when users want to check current information without going through a long archive.</p>
+        <p>The website can create separate pages for major result categories and keep each page focused on its own search intent.</p>
+        <p>This approach also makes navigation easier for users who visit the website from Google.</p>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-xl font-black text-gray-900 md:text-2xl">Popular Satta King Result Markets</h2>
+        <p>As the website grows, dedicated pages can be created for popular result searches such as:</p>
+        <ul className="grid list-disc gap-2 pl-5 sm:grid-cols-2">
+          <li>Gali Result</li><li>Disawar Result</li><li>Faridabad Result</li><li>Ghaziabad Result</li><li>Delhi Bazar Result</li><li>Other relevant market result pages</li>
         </ul>
+        <p>Each page should have unique content, its own title, proper headings and relevant chart information.</p>
+        <p>Do not create multiple pages with the same paragraph and only change the market name. That would make the pages look templated.</p>
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-xl font-black text-gray-900 md:text-2xl">How to Navigate Live-SattaKing.com</h2>
-        <ol className="list-decimal space-y-2 pl-5">
-          <li>Check the live dashboard near the top of the homepage for the latest available entries.</li>
-          <li>Select an individual market link to open its result chart and timeline.</li>
-          <li>Use the monthly chart controls to explore previous records by month and year.</li>
-          <li>Bookmark the homepage for quick access to future public updates.</li>
-        </ol>
+        <h2 className="text-xl font-black text-gray-900 md:text-2xl">Yearly and Monthly Satta Record Charts</h2>
+        <p>The Satta King Record Chart section can contain historical result information in an organized format.</p>
+        <p>Monthly records can be separated from yearly records so users can reach older information quickly.</p>
+        <p>For example:</p>
+        <div className="rounded-xl bg-brand-50 p-4 font-bold text-gray-900">Satta King Chart → 2026 → September 2026 → Daily Records</div>
+        <p>This creates a clean hierarchy for both users and search engines.</p>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-xl font-black text-gray-900 md:text-2xl">Why Choose SattaTodayResult Website</h2>
+        <p>SattaTodayResult.com is being built around a simple idea: make result information easy to find.</p>
+        <p>The website structure will focus on:</p>
+        <ul className="grid list-disc gap-2 pl-5 sm:grid-cols-2">
+          <li>Current result information</li><li>Historical chart records</li><li>Monthly result pages</li><li>Yearly record pages</li><li>Market-specific pages</li><li>Simple navigation</li><li>Mobile-friendly pages</li><li>Clear internal linking</li>
+        </ul>
+        <p>The goal should be to provide useful information instead of repeating the same keywords across every section.</p>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-xl font-black text-gray-900 md:text-2xl">How to Find Any Satta Result Online</h2>
+        <p>Finding a result should be simple.</p>
+        <p>Start from the homepage and select the relevant result category. Open the required chart or daily result page and check the date shown with the available information.</p>
+        <p>For older information, use the relevant monthly or yearly chart page.</p>
+        <p>Always verify the date before using any result record as current information.</p>
       </section>
 
       <section className="space-y-4">
         <h2 className="text-xl font-black text-gray-900 md:text-2xl">Frequently Asked Questions</h2>
         <div className="space-y-4">
-          <div><h3 className="font-black text-gray-900">What is Live Satta King?</h3><p>Live Satta King refers to real-time reporting of numerical outcomes published by independent local market organizers. This site organizes publicly available figures for informational tracking.</p></div>
-          <div><h3 className="font-black text-gray-900">When are Gali and Desawar updates announced?</h3><p>Desawar is typically published around 05:00 AM IST, while Gali is generally declared around 11:30 PM IST. Independent publication schedules may vary.</p></div>
-          <div><h3 className="font-black text-gray-900">How do I check past records on the live chart?</h3><p>Select the Chart link beside a market or use the monthly chart above to review preserved daily results.</p></div>
-          <div><h3 className="font-black text-gray-900">What does an awaiting or pending status mean?</h3><p>It means a verified figure has not yet been made publicly available. The display updates automatically after a result is released.</p></div>
+          <div><h3 className="font-black text-gray-900">What is Satta Today Result?</h3><p>Satta Today Result refers to the latest available result information for the current date.</p></div>
+          <div><h3 className="font-black text-gray-900">Where can I check Satta King Today Result?</h3><p>You can check the latest available Satta King result from the relevant result page on SattaTodayResult.com.</p></div>
+          <div><h3 className="font-black text-gray-900">What is a Satta King Chart?</h3><p>A Satta King Chart is a record of previous results arranged by date, month or year.</p></div>
+          <div><h3 className="font-black text-gray-900">Can I check old Satta King results?</h3><p>Yes. Available historical results can be organized through dedicated monthly and yearly chart pages.</p></div>
+          <div><h3 className="font-black text-gray-900">Can I check Satta Result Today on mobile?</h3><p>Yes. The website should be designed with a mobile-friendly layout so result and chart pages are easy to browse on smaller screens.</p></div>
+          <div><h3 className="font-black text-gray-900">Which result pages will be available?</h3><p>The website can gradually add dedicated pages for relevant searches such as Gali, Disawar, Faridabad, Ghaziabad and Delhi Bazar results.</p></div>
         </div>
       </section>
-
-      <section className="space-y-3 rounded-xl border border-amber-300 bg-amber-50 p-5">
-        <h2 className="text-xl font-black text-gray-900 md:text-2xl">Transparency &amp; Informational Notice</h2>
-        <ul className="list-disc space-y-2 pl-5">
-          <li><strong>Strictly informational:</strong> We do not conduct gambling operations, accept financial deposits, or act as a wagering intermediary.</li>
-          <li><strong>No predictive claims:</strong> We do not provide leak numbers, fixed results, guaranteed tips, or outcome predictions.</li>
-          <li><strong>Legal compliance:</strong> Visitors are responsible for understanding and following applicable local, state, and national laws.</li>
-        </ul>
-      </section>
-    </article>
+    </>
   );
 }
 
-function SeoContent() {
+function LiveSattaSeoContent() {
   return (
-    <div className="sa opacity-0 translate-y-8 bg-gray-50 rounded-2xl border border-gray-200 p-5 md:p-8 space-y-4 text-sm text-gray-600 leading-relaxed">
-      <h2 className="text-xl md:text-2xl font-black text-gray-900">
-        Satta Online Result – Fast & Accurate Satta King Result, Live Chart & Record
-      </h2>
-
-      <h3 className="text-lg font-bold text-gray-900">Welcome</h3>
-
-      <p>
-        Welcome to Live-SattaKing.com, your trusted destination for the latest
-        Satta King Result, Satta Online Result, Gali Result, Desawar Result,
-        Faridabad Result, and Ghaziabad Result updates. Our website is designed
-        to provide fast, accurate, and easy-to-read result information along with
-        historical charts and records in one place.
-      </p>
-
-      <p>
-        If you're searching for today's Satta King Result, Satta Chart, Satta
-        Record, Disawar Result Today, or old result history,
-        Live-SattaKing.com offers a clean and organized experience. Every
-        section is updated regularly so visitors can quickly access the latest
-        available information without unnecessary distractions.
-      </p>
-
-      <h3 className="text-lg font-bold text-gray-900">
-        Why Choose Live-SattaKing.com?
-      </h3>
-
-      <p>
-        At Live-SattaKing.com, we focus on providing reliable result
-        information in a simple format. Visitors can easily check the latest
-        Satta King Result, browse previous records, and explore historical charts
-        without confusion.
-      </p>
-
-      <p>
-        Our website is regularly maintained to keep information well-organized
-        and easy to access. Whether you're looking for today's update or older
-        result history, everything is arranged for a smooth browsing experience.
-      </p>
-
-      <h3 className="text-lg font-bold text-gray-900">
-        Today's Satta King Result & Live Updates
-      </h3>
-
-      <p>
-        Finding the latest Satta King Result Today should be quick and simple.
-        That's why our homepage highlights the most searched result sections so
-        visitors can reach the information they need without searching multiple
-        websites.
-      </p>
-
-      <p>
-        We continuously update available result information, including Gali
-        Result Today, Desawar Result Today, Faridabad Result Today, Ghaziabad
-        Result Today, and other popular market results in an easy-to-read format.
-      </p>
-
-      <h3 className="text-lg font-bold text-gray-900">
-        Satta Chart & Old Record
-      </h3>
-
-      <p>
-        Our Satta Chart section helps visitors access previous records in a
-        structured and organized manner. Date-wise charts make it easier to
-        review historical result information whenever required.
-      </p>
-
-      <p>
-        From Gali Chart and Desawar Chart to Faridabad Chart, Ghaziabad Chart,
-        and old result records, every archive is arranged for convenient browsing
-        and quick access.
-      </p>
-
-      <h3 className="text-lg font-bold text-gray-900">
-        Popular Satta King Markets
-      </h3>
-
-      <p>
-        Live-SattaKing.com provides organized updates for several well-known
-        markets that users frequently search online. Popular result sections are
-        displayed clearly, making navigation simple and convenient.
-      </p>
-
-      <p>
-        Visitors can quickly explore Gali Result, Desawar Result, Faridabad
-        Result, Ghaziabad Result, Delhi Result, related charts, and historical
-        records from one trusted platform.
-      </p>
-
-      <h3 className="text-lg font-bold text-gray-900">
-        Reliable Information & Regular Updates
-      </h3>
-
-      <p>
-        We understand the importance of timely information. Our team works to
-        keep result pages updated while maintaining a clean layout that makes
-        browsing simple for every visitor.
-      </p>
-
-      <p>
-        The website is built with a focus on clarity, consistency, and easy
-        navigation so users can find Satta Online Result, charts, and records
-        without unnecessary complexity.
-      </p>
-
-      <h3 className="text-lg font-bold text-gray-900">
-        A Trusted Source for Satta Online Result
-      </h3>
-
-      <p>
-        Our goal is to provide a dependable platform where visitors can easily
-        access Satta King Results, historical charts, and organized records. We
-        continuously improve the website to ensure a better browsing experience
-        for every user.
-      </p>
-
-      <p>
-        Live-SattaKing.com values transparency, accuracy, and simplicity. By
-        keeping information well-structured and regularly updated, we aim to
-        become a trusted destination for users looking for Satta Online Result
-        information.
-      </p>
-
-      <h3 className="text-lg font-bold text-gray-900">
-        Frequently Asked Questions (FAQs)
-      </h3>
-
-      <div className="space-y-3">
-        <div>
-          <h4 className="font-bold text-gray-900">
-            What is Live-SattaKing.com?
-          </h4>
-          <p>
-            Live-SattaKing.com is an informational website that provides the
-            latest Satta King Results, charts, old records, and historical result
-            information in an organized format.
-          </p>
-        </div>
-
-        <div>
-          <h4 className="font-bold text-gray-900">
-            How often are Satta King Results updated?
-          </h4>
-          <p>
-            Result information is updated regularly whenever the latest publicly
-            available updates become available.
-          </p>
-        </div>
-
-        <div>
-          <h4 className="font-bold text-gray-900">
-            Can I check old Satta charts on this website?
-          </h4>
-          <p>
-            Yes. Visitors can browse historical charts, previous records, and
-            archived result information through dedicated chart sections.
-          </p>
-        </div>
-
-        <div>
-          <h4 className="font-bold text-gray-900">
-            Which Satta King markets are available?
-          </h4>
-          <p>
-            The website includes information related to popular markets such as
-            Gali, Desawar, Faridabad, Ghaziabad, Delhi, and other commonly
-            searched result sections.
-          </p>
-        </div>
-
-        <div>
-          <h4 className="font-bold text-gray-900">
-            Is Live-SattaKing.com a trusted source?
-          </h4>
-          <p>
-            Our focus is on presenting organized, easy-to-read, and regularly
-            updated informational content to help visitors access result
-            information conveniently.
-          </p>
-        </div>
-      </div>
-
-      <h3 className="text-lg font-bold text-gray-900">Disclaimer</h3>
-
-      <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-xs text-red-700">
-        <strong>Important:</strong> Live-SattaKing.com is an informational
-        website only. We do not organize, operate, promote, or encourage
-        betting, gambling, or wagering activities. The information is published
-        solely for informational purposes. Users are responsible for complying
-        with applicable laws in their jurisdiction.
-      </div>
-    </div>
+    <article className="sa opacity-0 translate-y-8 space-y-8 rounded-2xl border border-gray-200 bg-white p-5 text-sm leading-relaxed text-gray-700 md:p-8">
+      <SuppliedHomeSeoContent />
+    </article>
   );
 }

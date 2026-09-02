@@ -8,6 +8,7 @@ import {
   type Block,
 } from "@/lib/blog-data";
 import { SITE_DISPLAY_DOMAIN, SITE_NAME, SITE_URL } from "@/lib/site";
+import { getMongoBlogPost } from "@/lib/blog-mongodb";
 
 export function generateStaticParams() {
   return BLOG_POSTS.map((post) => ({ slug: post.slug }));
@@ -19,24 +20,28 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const mongoPost = await getMongoBlogPost(slug).catch(() => null);
+  const post = mongoPost || getPostBySlug(slug);
 
   if (!post) {
     return { title: "Blog Not Found" };
   }
 
   const url = `${SITE_URL}/blog/${post.slug}`;
+  const description = "metaDescription" in post ? post.metaDescription : post.excerpt;
+  const title = "metaTitle" in post ? post.metaTitle : post.title;
   return {
-    title: post.title,
-    description: post.excerpt,
-    keywords: post.tags,
+    title,
+    description,
+    keywords: "tags" in post ? post.tags : undefined,
     alternates: { canonical: url },
     openGraph: {
       type: "article",
-      title: post.title,
-      description: post.excerpt,
+      title,
+      description,
       url,
       publishedTime: post.date,
+      images: "image" in post && post.image ? [post.image] : undefined,
     },
   };
 }
@@ -135,11 +140,20 @@ export default async function BlogDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const mongoPost = await getMongoBlogPost(slug).catch(() => null);
+  const staticPost = getPostBySlug(slug);
 
-  if (!post) {
+  if (!mongoPost && !staticPost) {
     notFound();
   }
+  const post = mongoPost
+    ? {
+        ...mongoPost,
+        excerpt: mongoPost.metaDescription,
+        tags: ["Latest", "Blog"],
+        readTime: `${Math.max(1, Math.ceil(mongoPost.content.split(/\s+/).length / 200))} min read`,
+      }
+    : staticPost!;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -202,15 +216,28 @@ export default async function BlogDetailPage({
           </div>
         </header>
 
+        {"image" in post && post.image && (
+          <img
+            src={post.image}
+            alt={post.title}
+            className="mb-7 aspect-video w-full rounded-2xl object-cover shadow-sm"
+          />
+        )}
+
         {/* Body */}
         <div className="border-t border-gray-100 pt-6">
-          {post.content.map((block, i) => renderBlock(block, i))}
+          {typeof post.content === "string"
+            ? <div
+                className="space-y-4 text-sm leading-relaxed text-gray-700 md:text-base [&_h2]:mt-8 [&_h2]:text-2xl [&_h2]:font-black [&_h2]:text-gray-900 [&_h3]:mt-6 [&_h3]:text-xl [&_h3]:font-bold [&_a]:font-bold [&_a]:text-brand-700 [&_blockquote]:border-l-4 [&_blockquote]:border-brand-300 [&_blockquote]:pl-4 [&_li]:ml-5 [&_ol]:list-decimal [&_ul]:list-disc"
+                dangerouslySetInnerHTML={{ __html: post.content }}
+              />
+            : post.content.map((block, i) => renderBlock(block, i))}
         </div>
 
         {/* Footer CTA */}
         <div className="mt-10 rounded-2xl bg-brand-ink border-2 border-brand-400 p-6 text-center">
           <p className="text-white font-bold text-lg mb-1">
-            Live A7 Satta Result देखें
+            Live Satta Today Result Result देखें
           </p>
           <p className="text-gray-400 text-sm mb-4">
             Gali, Desawar, Ghaziabad, Faridabad &amp; 100+ games के लाइव रिजल्ट और चार्ट।

@@ -40,7 +40,7 @@ export function WhatsAppButton() {
 
       {/* WhatsApp */}
       <a
-        href={getWhatsAppLink(phone, "A7 SATTA")}
+        href={getWhatsAppLink(phone, "Satta Today Result")}
         target="_blank"
         rel="noopener noreferrer"
         className="animate-float bg-green-500 hover:bg-green-600 text-white p-3.5 md:p-4 rounded-2xl shadow-xl shadow-green-500/30 transition-all hover:scale-110 block"

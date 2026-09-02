@@ -6,7 +6,7 @@ const CHART_META: Record<string, { title: string; description: string }> = {
   "new-gali": {
     title: "New Gali Satta King Chart",
     description:
-      "Check the latest New Gali Satta King chart, daily results, old record, and complete chart history on A7 Satta.",
+      "Check the latest New Gali Satta King chart, daily results, old record, and complete chart history on Satta Today Result.",
   },
   "delhi-evening": {
     title: "Delhi Evening Satta King Chart",
@@ -21,7 +21,7 @@ const CHART_META: Record<string, { title: string; description: string }> = {
   "🎀-show-your-game-here-🎀": {
     title: "Show Your Game Here Chart",
     description:
-      "Explore the Show Your Game Here chart with updated records and daily results on A7 Satta.",
+      "Explore the Show Your Game Here chart with updated records and daily results on Satta Today Result.",
   },
   desawer: {
     title: "Desawer Satta King Chart",
@@ -131,7 +131,7 @@ export async function generateMetadata({
   const title = meta?.title ?? `${name} Satta King Chart`;
   const description =
     meta?.description ??
-    `Check the ${name} Satta King chart, daily results, old records, and complete chart history on A7 Satta.`;
+    `Check the ${name} Satta King chart, daily results, old records, and complete chart history on Satta Today Result.`;
 
   const url = `${SITE_URL}/chart/${encodeURIComponent(gameCode)}`;
 

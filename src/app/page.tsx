@@ -18,9 +18,8 @@ function getIndiaDate(): string {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const date = getIndiaDate();
-  const title = `Live Satta King ${date} – Live Result, Gali & Desawar Updates`;
-  const description = `View Live Satta King updates for ${date}. Track real-time satta result records, daily market charts, and verified schedules for Gali, Desawar, Faridabad, and Ghaziabad.`;
+  const title = "Satta King Today Result Wednesday 2 September 2026 Live";
+  const description = "Check Wednesday 2 September 2026 Satta King today result updates and complete daily record charts online for Gali Disawar Faridabad and Ghaziabad.";
 
   return {
     // Absolute prevents the root title template from appending the site name.
@@ -61,7 +60,7 @@ export default async function HomePage() {
             name: "What is Live Satta King?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "Live Satta King refers to real-time reporting of daily numerical outcomes published by independent local market organizers. Live-SattaKing.com collects and organizes these public figures for informational tracking.",
+              text: "Live Satta King refers to real-time reporting of daily numerical outcomes published by independent local market organizers. SattaTodayResult.com collects and organizes these public figures for informational tracking.",
             },
           },
           {

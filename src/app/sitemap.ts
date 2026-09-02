@@ -3,7 +3,7 @@ import {
   getHomepageFromFirestore,
   getSK24GamesFromFirestore,
 } from "@/lib/firebase-cache";
-import { BLOG_POSTS } from "@/lib/blog-data";
+import { getMongoBlogSummaries } from "@/lib/blog-mongodb";
 import { SITE_URL } from "@/lib/site";
 
 // Refresh the sitemap at most every hour.
@@ -20,8 +20,9 @@ const FIXED_GAME_NAMES = [
   "KOHLAPUR", "MANIPUR", "UP BAZAR", "PALWAL CITY", "FRIDABAD",
   "MATHURA CITY", "GAZIABAD", "GALI", "DISAWAR",
   // 3rd section
-  "sadar bazar", "gwalior", "delhi bazar", "delhi matka", "shri ganesh",
-  "agra", "faridabad", "alwar", "dwarka",
+  "paras city", "sadar bazar", "gwalior", "delhi bazar", "delhi city",
+  "shree ganesh", "agra city", "faridabad", "jaipur city", "gaziyabad",
+  "varindawan city", "gali", "desawer",
   // Custom games
   "kohlapur", "manipur", "up-bazar", "palwal-city", "mathura-city",
 ];
@@ -40,7 +41,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   // ─── Blog posts ───
-  const blogRoutes: MetadataRoute.Sitemap = BLOG_POSTS.map((post) => ({
+  const mongoBlogs = await getMongoBlogSummaries(1000).catch(() => []);
+  const blogRoutes: MetadataRoute.Sitemap = mongoBlogs.map((post) => ({
     url: `${SITE_URL}/blog/${post.slug}`,
     lastModified: post.date ? new Date(post.date) : now,
     changeFrequency: "monthly",

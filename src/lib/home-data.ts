@@ -8,6 +8,7 @@ import { getAdminDb } from "./firebase-admin";
 import { getISTDateString } from "./utils";
 import { getKhaiwalSettings } from "./khaiwal-mongodb";
 import { getTopGamesFromMongoDB } from "./top-games-mongodb";
+import { getMongoBlogSummaries, type MongoBlogSummary } from "./blog-mongodb";
 import type {
   GameResult,
   ChartRow,
@@ -27,6 +28,7 @@ export interface HomeData {
   customGamesYesterday: Record<string, string>;
   khaiwal: { siteName: string; name: string; whatsapp: string } | null;
   topGames: SK24Game[];
+  blogs: MongoBlogSummary[];
 }
 
 const CUSTOM_COLLECTION = "custom_games";
@@ -62,7 +64,7 @@ export async function getHomeData(): Promise<HomeData> {
   const today = getISTDateString(0);
   const yesterday = getISTDateString(-1);
 
-  const [homepage, sk24, sk24chart, chart, custom, customPrev, khaiwal, topGames] = await Promise.all([
+  const [homepage, sk24, sk24chart, chart, custom, customPrev, khaiwal, topGames, blogs] = await Promise.all([
     getHomepageFromFirestore(),
     getSK24GamesFromFirestore(),
     getSK24ChartsFromFirestore(),
@@ -74,6 +76,7 @@ export async function getHomeData(): Promise<HomeData> {
       console.error("[home-data] top games MongoDB read failed:", (error as Error).message);
       return [];
     }),
+    getMongoBlogSummaries().catch(() => []),
   ]);
 
   return {
@@ -91,5 +94,6 @@ export async function getHomeData(): Promise<HomeData> {
     customGamesYesterday: customPrev.games || {},
     khaiwal: khaiwal || custom.khaiwal || null,
     topGames,
+    blogs,
   };
 }
