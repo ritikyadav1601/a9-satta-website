@@ -1,4 +1,4 @@
-import { getHomepageFromFirestore } from "./firebase-cache";
+import { getExtraHomepage } from "./extra-games-mongodb";
 import type { HomepageData } from "./types";
 
 // ─── Simple In-Memory Cache ───
@@ -24,19 +24,15 @@ export function memSet<T>(key: string, data: T, ttlSeconds: number): void {
   memCache.set(key, { data, expiresAt: Date.now() + ttlSeconds * 1000 });
 }
 
-// ─── Get Homepage Data (Firebase-only, no scraping) ───
+// ─── Get Homepage Data (MongoDB-only) ───
 
 export async function getHomepageData(): Promise<HomepageData | null> {
   const cached = memGet<HomepageData>("homepage");
   if (cached) return cached;
 
-  const firebaseData = await getHomepageFromFirestore();
-  if (firebaseData) {
-    memSet("homepage", firebaseData, 10);
-    return firebaseData;
-  }
-
-  return null;
+  const mongoData = await getExtraHomepage();
+  memSet("homepage", mongoData, 10);
+  return mongoData;
 }
 
 // ─── Cache Headers ───

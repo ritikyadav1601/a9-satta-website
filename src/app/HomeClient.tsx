@@ -216,7 +216,7 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
     let inFlight = false;
 
     const refreshResults = async () => {
-      // Avoid overlapping reads if Firestore takes longer than the interval.
+      // Avoid overlapping database reads if a request takes longer than the interval.
       if (inFlight || document.visibilityState !== "visible") return;
       inFlight = true;
       try {
@@ -266,31 +266,17 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
   ]);
   const isHidden = (name: string) => hiddenGames.has(name.toLowerCase().trim());
 
-  // Seeded random for stable results per day
-  const seedRand = (seed: number) => {
-    const x = Math.sin(seed) * 10000;
-    return Math.floor((x - Math.floor(x)) * 100);
-  };
-  // IST date so the seeded fallback rolls over at midnight IST (same as results)
-  const daySeed = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Kolkata",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date()).replace(/-/g, "");
-  const ds = parseInt(daySeed, 10);
-
   // ─── 1ST SECTION: Fixed 9 games ───
   const topGameDefs = [
-    { name: "KOHLAPUR", time: "1:30 PM", seedOffset: 1, customKey: "kohlapur", aliases: [] as string[] },
-    { name: "MANIPUR", time: "2:30 PM", seedOffset: 3, customKey: "manipur", aliases: [] },
-    { name: "UP BAZAR", time: "3:30 PM", seedOffset: 5, customKey: "up-bazar", aliases: ["upbazar"] },
-    { name: "PALWAL CITY", time: "4:30 PM", seedOffset: 7, customKey: "palwal-city", aliases: [] },
-    { name: "FRIDABAD", time: "5:45 PM", seedOffset: 11, customKey: "", aliases: ["faridabad", "frbd"] },
-    { name: "MATHURA CITY", time: "6:50 PM", seedOffset: 9, customKey: "mathura-city", aliases: [] },
-    { name: "GAZIABAD", time: "9:20 PM", seedOffset: 13, customKey: "", aliases: ["ghaziabad", "gzbd"] },
-    { name: "GALI", time: "11:20 PM", seedOffset: 15, customKey: "", aliases: [] },
-    { name: "DISAWAR", time: "1:30 AM", seedOffset: 17, customKey: "", aliases: ["desawar", "desawer", "dswr"] },
+    { name: "KOHLAPUR", time: "1:30 PM", customKey: "kohlapur", aliases: [] as string[] },
+    { name: "MANIPUR", time: "2:30 PM", customKey: "manipur", aliases: [] },
+    { name: "UP BAZAR", time: "3:30 PM", customKey: "up-bazar", aliases: ["upbazar"] },
+    { name: "PALWAL CITY", time: "4:30 PM", customKey: "palwal-city", aliases: [] },
+    { name: "FRIDABAD", time: "5:45 PM", customKey: "", aliases: ["faridabad", "frbd"] },
+    { name: "MATHURA CITY", time: "6:50 PM", customKey: "mathura-city", aliases: [] },
+    { name: "GAZIABAD", time: "9:20 PM", customKey: "", aliases: ["ghaziabad", "gzbd"] },
+    { name: "GALI", time: "11:20 PM", customKey: "", aliases: [] },
+    { name: "DISAWAR", time: "1:30 AM", customKey: "", aliases: ["desawar", "desawer", "dswr"] },
   ];
 
   const allApiGames = [...liveResults, ...nextResults, ...restResults, ...sk24Games];
@@ -304,14 +290,13 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
     });
     // Yesterday column: prefer the admin value saved for yesterday's date
     // (so today's declared result rolls into the Yesterday column at midnight IST),
-    // then fall back to scraped data, then a stable seeded value.
-    const seedFallback = String(seedRand(ds + def.seedOffset)).padStart(2, "0");
+    // then fall back to the MongoDB value.
     const yesterdayVal =
       (def.customKey && customGamesYesterday[def.customKey]) ||
       existing?.yesterday ||
-      seedFallback;
+      "XX";
 
-    // Admin custom value (Firebase) takes priority when set for today
+    // Admin custom value takes priority when set for today
     if (def.customKey && customGames[def.customKey]) {
       return {
         name: def.name,

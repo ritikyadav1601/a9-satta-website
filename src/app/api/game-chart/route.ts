@@ -1,10 +1,10 @@
 import { NextRequest } from "next/server";
 import { scrapeGameChart, scrapeSK24GameChart } from "@/lib/scraper";
-import { getGameChartFromFirestore } from "@/lib/firebase-cache";
+import { getExtraGameChart } from "@/lib/extra-games-mongodb";
 import type { GameChartData } from "@/lib/types";
 import { memGet, memSet, CHART_CACHE_HEADERS } from "@/lib/api-helpers";
 
-// Homepage uses Hinglish display spellings, but Firebase + the source site
+// Homepage uses Hinglish display spellings, but the database
 // store charts under canonical slugs. Normalize before any lookup so the
 // "Chart →" links for these games resolve correctly.
 const SLUG_ALIASES: Record<string, string> = {
@@ -37,14 +37,14 @@ export async function GET(req: NextRequest) {
     return Response.json({ success: true, ...cached }, { headers: CHART_CACHE_HEADERS });
   }
 
-  // 2. Firebase
-  const firebaseData = await getGameChartFromFirestore(slug, month, year);
-  if (firebaseData) {
-    memSet(cacheKey, firebaseData, 300);
-    return Response.json({ success: true, ...firebaseData }, { headers: CHART_CACHE_HEADERS });
+  // 2. Extra-games MongoDB
+  const mongoData = await getExtraGameChart(slug, month, year);
+  if (mongoData) {
+    memSet(cacheKey, mongoData, 300);
+    return Response.json({ success: true, ...mongoData }, { headers: CHART_CACHE_HEADERS });
   }
 
-  // 3. Scrape fallback (for games not yet in Firebase)
+  // 3. Scrape fallback (for games not present in MongoDB)
   try {
     let result = await scrapeGameChart(slug, month, year);
     if (!result) {

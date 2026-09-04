@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSK24GamesFromFirestore } from "@/lib/firebase-cache";
+import { getExtraGames } from "@/lib/extra-games-mongodb";
 import { memGet, memSet, EDGE_CACHE_HEADERS } from "@/lib/api-helpers";
 import type { SK24GamesData } from "@/lib/types";
 
@@ -13,19 +13,10 @@ export async function GET() {
       );
     }
 
-    const firebaseData = await getSK24GamesFromFirestore();
-    if (firebaseData) {
-      memSet("sk24-games", firebaseData, 30);
-      return NextResponse.json(
-        { success: true, games: firebaseData.games },
-        { headers: EDGE_CACHE_HEADERS }
-      );
-    }
-
-    return NextResponse.json(
-      { success: false, error: "Data not available" },
-      { status: 503 }
-    );
+    const games = await getExtraGames();
+    const mongoData = { games, scrapedAt: Date.now() };
+    memSet("sk24-games", mongoData, 30);
+    return NextResponse.json({ success: true, games }, { headers: EDGE_CACHE_HEADERS });
   } catch (err) {
     console.error("SK24 error:", err);
     return NextResponse.json(
