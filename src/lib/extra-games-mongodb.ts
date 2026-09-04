@@ -112,9 +112,18 @@ const chartColumns = [
 export async function getExtraMonthlyChart(monthName: string, yearText: string): Promise<MonthlyChartData> {
   const monthIndex = new Date(`${monthName} 1, ${yearText}`).getMonth();
   const year = Number(yearText);
-  const days = new Date(year, monthIndex + 1, 0).getDate();
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+  const [currentYear, currentMonth, currentDay] = getISTDateString(0).split("-").map(Number);
+  const selectedMonthNumber = monthIndex + 1;
+  const isFutureMonth =
+    year > currentYear || (year === currentYear && selectedMonthNumber > currentMonth);
+  const days = isFutureMonth
+    ? 0
+    : year === currentYear && selectedMonthNumber === currentMonth
+      ? currentDay
+      : daysInMonth;
   const start = `${year}-${String(monthIndex + 1).padStart(2, "0")}-01`;
-  const end = `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(days).padStart(2, "0")}`;
+  const end = `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(Math.max(days, 1)).padStart(2, "0")}`;
   const db = await getDatabase();
   const games = await db.collection<ExtraGame>("games").find({}).toArray();
   const selected = new Map<string, ObjectId>();
