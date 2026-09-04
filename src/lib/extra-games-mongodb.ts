@@ -24,19 +24,50 @@ type ExtraResult = {
 declare global {
   // eslint-disable-next-line no-var
   var __extraGamesMongoClient: MongoClient | undefined;
+  // eslint-disable-next-line no-var
+  var __extraGamesMongoClientPromise: Promise<MongoClient> | undefined;
+  // eslint-disable-next-line no-var
+  var __extraGamesCache: Map<string, { expiresAt: number; value: unknown }> | undefined;
+  // eslint-disable-next-line no-var
+  var __extraGamesPending: Map<string, Promise<unknown>> | undefined;
 }
 
 function getClient() {
   const uri = process.env.EXTRA_GAMES_MONGO_URI?.trim();
   if (!uri) throw new Error("EXTRA_GAMES_MONGO_URI is not configured.");
-  if (!global.__extraGamesMongoClient) global.__extraGamesMongoClient = new MongoClient(uri);
+  if (!global.__extraGamesMongoClient) global.__extraGamesMongoClient = new MongoClient(uri, {
+    maxPoolSize: 10,
+    minPoolSize: 1,
+    serverSelectionTimeoutMS: 5000,
+  });
   return global.__extraGamesMongoClient;
 }
 
 async function getDatabase() {
   const client = getClient();
-  await client.connect();
-  return client.db(databaseName);
+  global.__extraGamesMongoClientPromise ||= client.connect();
+  return (await global.__extraGamesMongoClientPromise).db(databaseName);
+}
+
+async function cached<T>(key: string, ttlMs: number, loader: () => Promise<T>): Promise<T> {
+  global.__extraGamesCache ||= new Map();
+  global.__extraGamesPending ||= new Map();
+  const hit = global.__extraGamesCache.get(key);
+  if (hit && hit.expiresAt > Date.now()) return hit.value as T;
+  const existing = global.__extraGamesPending.get(key);
+  if (existing) return existing as Promise<T>;
+  const pending = loader().then((value) => {
+    global.__extraGamesCache!.set(key, { value, expiresAt: Date.now() + ttlMs });
+    return value;
+  }).finally(() => global.__extraGamesPending!.delete(key));
+  global.__extraGamesPending.set(key, pending);
+  return pending;
+}
+
+function clearResultCaches() {
+  for (const key of global.__extraGamesCache?.keys() || []) {
+    if (key.startsWith("results:") || key.startsWith("monthly:")) global.__extraGamesCache?.delete(key);
+  }
 }
 
 function displayTime(value?: string) {
@@ -55,16 +86,27 @@ function slugify(value: string) {
 }
 
 async function activeGames() {
-  return (await getDatabase()).collection<ExtraGame>("games")
-    .find({ isActive: { $ne: false } })
-    .sort({ showIndex: 1, resultTime: 1, name: 1 })
-    .toArray();
+  return cached("active-games", 5 * 60_000, async () =>
+    (await getDatabase()).collection<ExtraGame>("games")
+      .find(
+        { isActive: { $ne: false } },
+        { projection: { _id: 1, name: 1, code: 1, resultTime: 1, showIndex: 1 } },
+      )
+      .sort({ showIndex: 1, resultTime: 1, name: 1 })
+      .toArray(),
+  );
 }
 
 async function resultsForDates(dates: string[]) {
-  return (await getDatabase()).collection<ExtraResult>("gameresults")
-    .find({ resultDate: { $in: dates } })
-    .toArray();
+  const normalizedDates = [...dates].sort();
+  return cached(`results:${normalizedDates.join(",")}`, 10_000, async () =>
+    (await getDatabase()).collection<ExtraResult>("gameresults")
+      .find(
+        { resultDate: { $in: normalizedDates } },
+        { projection: { _id: 0, game: 1, resultDate: 1, result: 1, updatedAt: 1 } },
+      )
+      .toArray(),
+  );
 }
 
 export async function getExtraGames(): Promise<SK24Game[]> {
@@ -110,6 +152,7 @@ const chartColumns = [
 ] as const;
 
 export async function getExtraMonthlyChart(monthName: string, yearText: string): Promise<MonthlyChartData> {
+  return cached(`monthly:${monthName.toLowerCase()}:${yearText}:${getISTDateString(0)}`, 60_000, async () => {
   const monthIndex = new Date(`${monthName} 1, ${yearText}`).getMonth();
   const year = Number(yearText);
   const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
@@ -142,6 +185,7 @@ export async function getExtraMonthlyChart(monthName: string, yearText: string):
     return row;
   });
   return { month: monthName, year: yearText, results: rows, scrapedAt: Date.now() };
+  });
 }
 
 export async function getExtraGameChart(slug: string, month?: string, yearText?: string): Promise<GameChartData | null> {
@@ -193,6 +237,7 @@ export async function saveExtraResult(date: string, gameSlug: string, value: str
     { $set: { result: String(value).trim(), updatedAt: new Date() }, $setOnInsert: { createdAt: new Date() } },
     { upsert: true },
   );
+  clearResultCaches();
 }
 
 export async function deleteExtraResult(date: string, gameSlug: string) {
@@ -201,4 +246,5 @@ export async function deleteExtraResult(date: string, gameSlug: string) {
   const game = games.find((item) => slugify(String(item.name || "")) === slugify(gameSlug) || String(item.code || "").toLowerCase() === gameSlug.toLowerCase());
   if (!game) return;
   await db.collection<ExtraResult>("gameresults").deleteOne({ game: game._id, resultDate: date });
+  clearResultCaches();
 }

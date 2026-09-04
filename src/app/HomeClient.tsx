@@ -245,7 +245,7 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
       }
     };
 
-    const interval = window.setInterval(refreshResults, 10_000);
+    const interval = window.setInterval(refreshResults, 30_000);
     return () => window.clearInterval(interval);
   }, []);
 
@@ -500,7 +500,20 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
               <SK24ChartsSection tables={sk24Charts} lang={lang} />
             )}
 
-            {/* LIVE (remaining) */}
+            {/* DECLARED EXTRA GAMES — always shown above pending games */}
+            {filteredRest.length > 0 && (
+              <GameCardSection
+                title={t("घोषित रिजल्ट", "Declared Results", lang)}
+                subtitle={t("आज के पूरे हुए गेम रिजल्ट", "Today's completed game results", lang)}
+                icon={<FiTrendingUp size={18} />}
+                headerBg="bg-emerald-600"
+                accentColor="text-emerald-600"
+                games={filteredRest}
+                lang={lang}
+              />
+            )}
+
+            {/* PENDING EXTRA GAMES whose scheduled time has passed */}
             {filteredLive.length > 0 && (
               <GameCardSection
                 title={t("लाइव रिजल्ट", "LIVE Results", lang)}
@@ -514,7 +527,7 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
               />
             )}
 
-            {/* UPCOMING (remaining) */}
+            {/* UPCOMING EXTRA GAMES */}
             {filteredNext.length > 0 && (
               <GameCardSection
                 title={t("आने वाले रिजल्ट", "Upcoming Results", lang)}
@@ -527,18 +540,6 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
               />
             )}
 
-            {/* DECLARED (remaining) */}
-            {filteredRest.length > 0 && (
-              <GameCardSection
-                title={t("घोषित रिजल्ट", "Declared Results", lang)}
-                subtitle={t("आज के पूरे हुए गेम रिजल्ट", "Today's completed game results", lang)}
-                icon={<FiTrendingUp size={18} />}
-                headerBg="bg-emerald-600"
-                accentColor="text-emerald-600"
-                games={filteredRest}
-                lang={lang}
-              />
-            )}
           </>
         )}
 

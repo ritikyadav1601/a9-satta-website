@@ -24,8 +24,11 @@ export interface HomeData {
   blogs: MongoBlogSummary[];
 }
 
+let homeDataCache: { value: HomeData; expiresAt: number } | null = null;
+let homeDataPending: Promise<HomeData> | null = null;
+
 // Fetch homepage games and results from the extra-games MongoDB database.
-export async function getHomeData(): Promise<HomeData> {
+async function loadHomeData(): Promise<HomeData> {
   const now = new Date();
   const monthName = now.toLocaleString("en-US", { month: "long" }).toLowerCase();
   const year = now.getFullYear().toString();
@@ -58,4 +61,18 @@ export async function getHomeData(): Promise<HomeData> {
     topGames,
     blogs,
   };
+}
+
+export async function getHomeData(): Promise<HomeData> {
+  if (homeDataCache && homeDataCache.expiresAt > Date.now()) return homeDataCache.value;
+  if (homeDataPending) return homeDataPending;
+  homeDataPending = loadHomeData()
+    .then((value) => {
+      homeDataCache = { value, expiresAt: Date.now() + 10_000 };
+      return value;
+    })
+    .finally(() => {
+      homeDataPending = null;
+    });
+  return homeDataPending;
 }
