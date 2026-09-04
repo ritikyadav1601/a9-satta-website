@@ -44,12 +44,20 @@ export default async function HomePage() {
     "@context": "https://schema.org",
     "@graph": [
       {
+        "@type": "Organization",
+        "@id": `${SITE_URL}/#organization`,
+        name: SITE_NAME,
+        url: SITE_URL,
+      },
+      {
         "@type": "WebSite",
         "@id": `${SITE_URL}/#website`,
         url: SITE_URL,
         name: SITE_NAME,
         description: "Real-time Satta King live results, market schedules, and 2026 historical record charts.",
         inLanguage: "en-IN",
+        author: { "@id": `${SITE_URL}/#organization` },
+        publisher: { "@id": `${SITE_URL}/#organization` },
       },
       {
         "@type": "FAQPage",
@@ -97,6 +105,8 @@ export default async function HomePage() {
         isPartOf: { "@id": `${SITE_URL}/#website` },
         description: "View Live Satta King updates with real-time satta result records, daily market charts, and verified schedules for Gali, Desawar, Faridabad, and Ghaziabad.",
         inLanguage: "en-IN",
+        author: { "@id": `${SITE_URL}/#organization` },
+        publisher: { "@id": `${SITE_URL}/#organization` },
       },
     ],
   };
