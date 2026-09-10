@@ -136,7 +136,7 @@ function isSpotlightGame(game: GameResult | SK24Game) {
 }
 
 function allHomepageGames(data: HomeData): (GameResult | SK24Game)[] {
-  return [...data.liveResults, ...data.nextResults, ...data.restResults, ...data.sk24Games]
+  return [...data.liveResults, ...data.nextResults, ...data.restResults, ...data.a9Games, ...data.sk24Games]
     .filter(isSpotlightGame);
 }
 
@@ -196,6 +196,7 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
     liveResults,
     nextResults,
     restResults,
+    a9Games = [],
     sk24Games,
     sk24Charts,
     monthlyChart,
@@ -360,9 +361,26 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
       SPOTLIGHT_SCHEDULE.find((game) => resultKey(game as SK24Game) === name)?.time || "";
     return { name: name.toUpperCase(), time: scheduledTime, yesterday: "XX", today: "XX" };
   });
-  const section3Games = mongoTopGames.length === SPOTLIGHT_SCHEDULE.length
+  const storedSection3Games = mongoTopGames.length === SPOTLIGHT_SCHEDULE.length
     ? mongoTopGames
     : fallbackSection3Games;
+  // These five rows are published by the A9 API. Its current result/status takes
+  // precedence, while the locally stored yesterday value is kept for continuity.
+  const section3Games = storedSection3Games.map((game) => {
+    const remoteGame = a9Games.find((item) => {
+      const remoteName = resultKey(item);
+      const canonicalName = section3GameNames.find((name) =>
+        name === remoteName || (section3Aliases[name] || []).includes(remoteName),
+      );
+      return Boolean(
+        canonicalName &&
+        [canonicalName, ...(section3Aliases[canonicalName] || [])].includes(resultKey(game)),
+      );
+    });
+    return remoteGame
+      ? { ...game, name: remoteGame.name, time: remoteGame.time || game.time, today: remoteGame.today }
+      : game;
+  });
 
   // Match the reference site's spotlight logic: choose the next still-pending
   // game by IST schedule, and choose the most recently saved declared result.
@@ -483,6 +501,7 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
               initialMonth={monthlyChartMeta.month}
               initialYear={monthlyChartMeta.year}
               declaredGames={mongoTopGames}
+              a9Games={a9Games}
               lang={lang}
             />
 
@@ -981,7 +1000,14 @@ const CHART_GAMES = [
   { key: "gzbd" as const, name: "Gaziabad", resultName: "GAZIYABAD" },
   { key: "gali" as const, name: "Gali", resultName: "GALI" },
   { key: "dswr" as const, name: "Disawar", resultName: "DESAWER" },
+  { key: "paras-city", name: "Paras City", resultName: "PARAS CITY" },
+  { key: "delhi-city", name: "Delhi City", resultName: "DELHI CITY" },
+  { key: "agra-city", name: "Agra City", resultName: "AGRA CITY" },
+  { key: "jaipur-city", name: "Jaipur City", resultName: "JAIPUR CITY" },
+  { key: "varindavan-city", name: "Varindavan City", resultName: "VARINDAVAN CITY" },
 ];
+const PRIMARY_CHART_GAMES = CHART_GAMES.slice(0, 6);
+const A9_CHART_GAMES = CHART_GAMES.slice(6);
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -993,12 +1019,14 @@ function MonthlyChartSection({
   initialMonth,
   initialYear,
   declaredGames,
+  a9Games,
   lang,
 }: {
   initialRows: ChartRow[];
   initialMonth: string;
   initialYear: string;
   declaredGames: SK24Game[];
+  a9Games: GameResult[];
   lang: "hi" | "en";
 }) {
   const now = new Date();
@@ -1052,7 +1080,7 @@ function MonthlyChartSection({
     }).formatToParts(new Date()).map((part) => [part.type, part.value]),
   );
   const declaredByName = new Map(
-    declaredGames.map((game) => [game.name.toUpperCase(), game.today]),
+    [...declaredGames, ...a9Games].map((game) => [game.name.toUpperCase(), game.today]),
   );
   const chartValue = (row: ChartRow, game: (typeof CHART_GAMES)[number]) => {
     const isToday =
@@ -1060,7 +1088,9 @@ function MonthlyChartSection({
       selectedMonth.toLowerCase() === String(istDateParts.month).toLowerCase() &&
       Number(row.date) === Number(istDateParts.day);
 
-    if (!isToday) return row[game.key] || "XX";
+    if (!isToday) {
+      return game.key in row ? row[game.key as keyof ChartRow] || "XX" : "XX";
+    }
     const declaredValue = declaredByName.get(game.resultName);
     return isDeclaredResult(declaredValue) ? declaredValue : "XX";
   };
@@ -1072,7 +1102,7 @@ function MonthlyChartSection({
           <h2 className="text-lg md:text-xl font-black text-gray-900">
             {lang === "hi" ? "मंथली चार्ट" : "Monthly Chart"} {selectedYear}
           </h2>
-          <p className="text-xs text-gray-400">Delhi Bazar, Shri Ganesh, Faridabad, Gaziabad, Gali, Disawar</p>
+          <p className="text-xs text-gray-400">Delhi Bazar, Shri Ganesh, Faridabad, Gaziabad, Gali, Disawar, Paras City, Delhi City, Agra City, Jaipur City & Varindavan City</p>
         </div>
       </div>
 
@@ -1125,7 +1155,8 @@ function MonthlyChartSection({
           <div className="bg-brand-100 text-slate-900 text-center py-2.5 px-3 text-sm md:text-base font-bold">
             {title}
           </div>
-          <div className="overflow-x-auto">
+          {/* Desktop: show every game in one record table. */}
+          <div className="hidden overflow-x-auto md:block">
             <table className="w-full text-sm md:text-base border-collapse">
               <thead>
                 <tr className="bg-brand-ink text-brand-100 text-[10px] md:text-xs uppercase">
@@ -1157,6 +1188,35 @@ function MonthlyChartSection({
                 ))}
               </tbody>
             </table>
+          </div>
+          {/* Mobile: use two tables so every column remains readable without swiping. */}
+          <div className="md:hidden">
+            {[PRIMARY_CHART_GAMES, A9_CHART_GAMES].map((games, tableIndex) => (
+              <table key={tableIndex} className="w-full table-fixed border-collapse text-[10px]">
+                <thead>
+                  <tr className="bg-brand-ink text-brand-100 uppercase">
+                    <th className="border border-gray-300 px-0.5 py-2 font-semibold">{t("तारीख", "Date", lang)}</th>
+                    {games.map((game) => (
+                      <th key={game.key} className="border border-gray-300 px-0.5 py-2 font-semibold leading-tight">
+                        {game.name}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row, rowIndex) => (
+                    <tr key={rowIndex} className={`text-center ${rowIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
+                      <td className="border border-gray-200 px-0.5 py-1.5 font-bold text-red-500">{row.date}</td>
+                      {games.map((game) => (
+                        <td key={game.key} className="border border-gray-200 px-0.5 py-1.5 font-mono font-bold text-gray-800">
+                          {chartValue(row, game)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ))}
           </div>
         </div>
       ) : (

@@ -1,4 +1,5 @@
 import { getExtraHomepage, getExtraMonthlyChart } from "./extra-games-mongodb";
+import { getA9Results } from "./a9-results";
 import { getKhaiwalSettings } from "./khaiwal-mongodb";
 import { getTopGamesFromMongoDB } from "./top-games-mongodb";
 import { getMongoBlogSummaries, type MongoBlogSummary } from "./blog-mongodb";
@@ -13,6 +14,7 @@ export interface HomeData {
   liveResults: GameResult[];
   nextResults: GameResult[];
   restResults: GameResult[];
+  a9Games: GameResult[];
   sk24Games: SK24Game[];
   sk24Charts: SK24ChartTable[];
   monthlyChart: ChartRow[];
@@ -33,9 +35,16 @@ async function loadHomeData(): Promise<HomeData> {
   const monthName = now.toLocaleString("en-US", { month: "long" }).toLowerCase();
   const year = now.getFullYear().toString();
   // Use IST so results roll over at midnight IST, not midnight UTC.
-  const [homepage, chart, khaiwal, topGames, blogs] = await Promise.all([
-    getExtraHomepage(),
-    getExtraMonthlyChart(monthName, year),
+  const [homepage, chart, a9Games, khaiwal, topGames, blogs] = await Promise.all([
+    getExtraHomepage().catch((error) => {
+      console.error("[home-data] extra games MongoDB read failed:", (error as Error).message);
+      return null;
+    }),
+    getExtraMonthlyChart(monthName, year).catch((error) => {
+      console.error("[home-data] monthly chart MongoDB read failed:", (error as Error).message);
+      return null;
+    }),
+    getA9Results(),
     getKhaiwalSettings().catch(() => null),
     getTopGamesFromMongoDB().catch((error) => {
       console.error("[home-data] top games MongoDB read failed:", (error as Error).message);
@@ -48,6 +57,7 @@ async function loadHomeData(): Promise<HomeData> {
     liveResults: homepage?.live || [],
     nextResults: homepage?.next || [],
     restResults: homepage?.rest || [],
+    a9Games,
     sk24Games: [],
     sk24Charts: [],
     monthlyChart: chart?.results || [],
