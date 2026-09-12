@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/sync-a9-results",
+      "schedule": "* * * * *"
+    }
+  ]
+}

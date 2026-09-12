@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { scrapeGameChart, scrapeSK24GameChart } from "@/lib/scraper";
 import { getExtraGameChart } from "@/lib/extra-games-mongodb";
+import { getA9TopGameChart } from "@/lib/top-games-mongodb";
 import type { GameChartData } from "@/lib/types";
 import { memGet, memSet, CHART_CACHE_HEADERS } from "@/lib/api-helpers";
 
@@ -44,7 +45,14 @@ export async function GET(req: NextRequest) {
     return Response.json({ success: true, ...mongoData }, { headers: CHART_CACHE_HEADERS });
   }
 
-  // 3. Scrape fallback (for games not present in MongoDB)
+  // 3. A9 historical records are stored in the Top Games database.
+  const topGamesData = await getA9TopGameChart(slug, month, year);
+  if (topGamesData) {
+    memSet(cacheKey, topGamesData, 300);
+    return Response.json({ success: true, ...topGamesData }, { headers: CHART_CACHE_HEADERS });
+  }
+
+  // 4. Scrape fallback (for games not present in MongoDB)
   try {
     let result = await scrapeGameChart(slug, month, year);
     if (!result) {

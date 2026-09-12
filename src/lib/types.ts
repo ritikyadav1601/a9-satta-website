@@ -13,6 +13,11 @@ export interface ChartRow {
   gali: string;
   srgn: string;
   dlbz: string;
+  "paras-city": string;
+  "delhi-city": string;
+  "agra-city": string;
+  "jaipur-city": string;
+  "varindavan-city": string;
 }
 
 export interface MonthlyChartData {

@@ -9,6 +9,7 @@ Copy every value from `.env.example` into the hosting provider. The production-c
 - `NEXT_PUBLIC_SITE_URL=https://sattatodayresult.com`
 - `TOP_GAMES_MONGODB_URI`
 - `TOP_GAMES_MONGODB_DATABASE=test`
+- `CRON_SECRET` (a long random secret used by the A9 result-sync cron)
 - All Firebase client variables
 - `FIREBASE_PRIVATE_KEY`
 - `FIREBASE_CLIENT_EMAIL`
@@ -39,3 +40,9 @@ npm run build
 ```
 
 The build must finish without TypeScript or route-generation errors.
+
+## A9 result synchronization
+
+`vercel.json` invokes `/api/cron/sync-a9-results` every minute. Vercel sends the
+configured `CRON_SECRET` as a Bearer token. The endpoint saves published A9
+results into the Top Games database and ignores pending or invalid values.

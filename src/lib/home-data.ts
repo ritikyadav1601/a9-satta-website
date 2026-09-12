@@ -1,7 +1,7 @@
 import { getExtraHomepage, getExtraMonthlyChart } from "./extra-games-mongodb";
 import { getA9Results } from "./a9-results";
 import { getKhaiwalSettings } from "./khaiwal-mongodb";
-import { getTopGamesFromMongoDB } from "./top-games-mongodb";
+import { addA9TopGameMonthlyResults, getTopGamesFromMongoDB } from "./top-games-mongodb";
 import { getMongoBlogSummaries, type MongoBlogSummary } from "./blog-mongodb";
 import type {
   GameResult,
@@ -53,6 +53,13 @@ async function loadHomeData(): Promise<HomeData> {
     getMongoBlogSummaries().catch(() => []),
   ]);
 
+  const monthlyChart = chart
+    ? await addA9TopGameMonthlyResults(chart.results, monthName, year).catch((error) => {
+      console.error("[home-data] top games monthly read failed:", (error as Error).message);
+      return chart.results;
+    })
+    : [];
+
   return {
     liveResults: homepage?.live || [],
     nextResults: homepage?.next || [],
@@ -60,7 +67,7 @@ async function loadHomeData(): Promise<HomeData> {
     a9Games,
     sk24Games: [],
     sk24Charts: [],
-    monthlyChart: chart?.results || [],
+    monthlyChart,
     monthlyChartMeta: {
       month: chart?.month || monthName,
       year: chart?.year || year,

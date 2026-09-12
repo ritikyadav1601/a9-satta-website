@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { getExtraMonthlyChart } from "@/lib/extra-games-mongodb";
+import { addA9TopGameMonthlyResults } from "@/lib/top-games-mongodb";
 import { memGet, memSet, CHART_CACHE_HEADERS } from "@/lib/api-helpers";
 import type { MonthlyChartData } from "@/lib/types";
 
@@ -18,9 +19,11 @@ export async function GET(req: NextRequest) {
   }
 
   const mongoData = await getExtraMonthlyChart(monthName, year);
-  memSet(cacheKey, mongoData, 120);
+  const results = await addA9TopGameMonthlyResults(mongoData.results, monthName, year);
+  const data = { ...mongoData, results };
+  memSet(cacheKey, data, 120);
   return Response.json(
-    { success: true, month: mongoData.month, year: mongoData.year, results: mongoData.results },
+    { success: true, month: data.month, year: data.year, results: data.results },
     { headers: CHART_CACHE_HEADERS }
   );
 }

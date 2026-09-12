@@ -105,6 +105,9 @@ async function resultsForDates(dates: string[]) {
         { resultDate: { $in: normalizedDates } },
         { projection: { _id: 0, game: 1, resultDate: 1, result: 1, updatedAt: 1 } },
       )
+      // Imported A9 rows retain their source IDs. Sorting keeps the displayed
+      // value stable when a source has more than one row for the same date.
+      .sort({ sourceResultId: 1 })
       .toArray(),
   );
 }
@@ -149,6 +152,9 @@ const chartColumns = [
   ["dswr", ["DS", "DESAWAR"]], ["frbd", ["FB", "FARIDABAD"]],
   ["gzbd", ["GB", "GHAZIABAD"]], ["gali", ["GL", "GALI"]],
   ["srgn", ["SG", "SHRI GANESH", "SHREE GANESH"]], ["dlbz", ["DB", "DELHI BAZAR"]],
+  ["paras-city", ["PC", "PARAS CITY"]], ["delhi-city", ["DC", "DELHI CITY"]],
+  ["agra-city", ["AC", "AGRA CITY"]], ["jaipur-city", ["JPC", "JAIPUR CITY"]],
+  ["varindavan-city", ["VC", "VARINDAVAN CITY"]],
 ] as const;
 
 export async function getExtraMonthlyChart(monthName: string, yearText: string): Promise<MonthlyChartData> {
@@ -175,12 +181,18 @@ export async function getExtraMonthlyChart(monthName: string, yearText: string):
     if (game) selected.set(key, game._id);
   }
   const ids = [...selected.values()];
-  const results = await db.collection<ExtraResult>("gameresults").find({ game: { $in: ids }, resultDate: { $gte: start, $lte: end } }).toArray();
+  const results = await db.collection<ExtraResult>("gameresults")
+    .find({ game: { $in: ids }, resultDate: { $gte: start, $lte: end } })
+    .sort({ sourceResultId: 1 })
+    .toArray();
   const values = new Map(results.map((item) => [`${String(item.game)}:${item.resultDate}`, validResult(item.result)]));
   const rows: ChartRow[] = Array.from({ length: days }, (_, index) => {
     const day = index + 1;
     const date = `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    const row: ChartRow = { date: String(day).padStart(2, "0"), dswr: "XX", frbd: "XX", gzbd: "XX", gali: "XX", srgn: "XX", dlbz: "XX" };
+    const row: ChartRow = {
+      date: String(day).padStart(2, "0"), dswr: "XX", frbd: "XX", gzbd: "XX", gali: "XX", srgn: "XX", dlbz: "XX",
+      "paras-city": "XX", "delhi-city": "XX", "agra-city": "XX", "jaipur-city": "XX", "varindavan-city": "XX",
+    };
     for (const [key, id] of selected) row[key as keyof Omit<ChartRow, "date">] = values.get(`${String(id)}:${date}`) || "XX";
     return row;
   });
@@ -198,7 +210,9 @@ export async function getExtraGameChart(slug: string, month?: string, yearText?:
   const days = new Date(year, monthIndex + 1, 0).getDate();
   const prefix = `${year}-${String(monthIndex + 1).padStart(2, "0")}`;
   const entries = await (await getDatabase()).collection<ExtraResult>("gameresults")
-    .find({ game: game._id, resultDate: { $gte: `${prefix}-01`, $lte: `${prefix}-${String(days).padStart(2, "0")}` } }).toArray();
+    .find({ game: game._id, resultDate: { $gte: `${prefix}-01`, $lte: `${prefix}-${String(days).padStart(2, "0")}` } })
+    .sort({ sourceResultId: 1 })
+    .toArray();
   const values = new Map(entries.map((item) => [item.resultDate, validResult(item.result)]));
   const monthLabel = new Date(year, monthIndex, 1).toLocaleString("en-US", { month: "long" });
   return {

@@ -361,9 +361,19 @@ export default function HomeClient({ initialData }: { initialData: HomeData }) {
       SPOTLIGHT_SCHEDULE.find((game) => resultKey(game as SK24Game) === name)?.time || "";
     return { name: name.toUpperCase(), time: scheduledTime, yesterday: "XX", today: "XX" };
   });
-  const storedSection3Games = mongoTopGames.length === SPOTLIGHT_SCHEDULE.length
-    ? mongoTopGames
-    : fallbackSection3Games;
+  // Prefer the imported extra-games database whenever it has a result. The
+  // top-games feed remains a fallback for the other fixed homepage markets.
+  const storedSection3Games = fallbackSection3Games.map((fallback) => {
+    const fallbackName = fallback.name.toLowerCase();
+    const aliases = section3Aliases[fallbackName] || [];
+    const stored = mongoTopGames.find((game) => {
+      const storedName = game.name.toLowerCase();
+      return storedName === fallbackName || aliases.includes(storedName);
+    });
+    return isDeclaredResult(fallback.yesterday) || isDeclaredResult(fallback.today) || !stored
+      ? fallback
+      : { ...stored, name: fallback.name };
+  });
   // These five rows are published by the A9 API. Its current result/status takes
   // precedence, while the locally stored yesterday value is kept for continuity.
   const section3Games = storedSection3Games.map((game) => {
